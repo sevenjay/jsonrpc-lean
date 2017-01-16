@@ -45,11 +45,11 @@ namespace jsonrpc {
         const Parameters& GetParameters() const { return myParameters; }
         const Value& GetId() const { return myId; }
 
-        std::string Write(Writer& writer) const {
-            return Write(myMethodName, myParameters, myId, writer);
+        std::string Write() const {
+            return Write(myMethodName, myParameters, myId);
         }
 
-        static std::string Write(const std::string& methodName, const Parameters& params, const Value& id, Writer& writer) {
+        static std::string Write(const std::string& methodName, const Parameters& params, const Value& id) {
         Json::object RequestJson;
         RequestJson[json::JSONRPC_NAME] = json::JSONRPC_VERSION_2_0;
         RequestJson[json::METHOD_NAME] = methodName;

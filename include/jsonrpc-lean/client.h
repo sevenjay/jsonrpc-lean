@@ -25,9 +25,6 @@
 #include "jsonformathandler.h"
 #include "reader.h"
 #include "response.h"
-#include "writer.h"
-#include "formatteddata.h"
-#include "jsonformatteddata.h"
 #include "dispatcher.h"
 
 #include <functional>
@@ -47,12 +44,12 @@ namespace jsonrpc {
 
         ~Client() {}
 
-        std::shared_ptr<FormattedData> BuildRequestData(const std::string& methodName, const Request::Parameters& params = {}) {
+        std::string BuildRequestData(const std::string& methodName, const Request::Parameters& params = {}) {
             return BuildRequestDataInternal(methodName, params);
         }
 
         template<typename FirstType, typename... RestTypes>
-        typename std::enable_if<!std::is_same<typename std::decay<FirstType>::type, Request::Parameters>::value, std::shared_ptr<FormattedData>>::type
+        typename std::enable_if<!std::is_same<typename std::decay<FirstType>::type, Request::Parameters>::value, std::string>::type
         BuildRequestData(const std::string& methodName, FirstType&& first, RestTypes&&... rest) {
             Request::Parameters params;
             params.emplace_back(std::forward<FirstType>(first));
@@ -60,12 +57,12 @@ namespace jsonrpc {
             return BuildRequestDataInternal(methodName, params, std::forward<RestTypes>(rest)...);
         }
 
-        std::shared_ptr<FormattedData> BuildNotificationData(const std::string& methodName, const Request::Parameters& params = {}) {
+        std::string BuildNotificationData(const std::string& methodName, const Request::Parameters& params = {}) {
             return BuildNotificationDataInternal(methodName, params);
         }
 
         template<typename FirstType, typename... RestTypes>
-        typename std::enable_if<!std::is_same<typename std::decay<FirstType>::type, Request::Parameters>::value, std::shared_ptr<FormattedData>>::type
+        typename std::enable_if<!std::is_same<typename std::decay<FirstType>::type, Request::Parameters>::value, std::string>::type
         BuildNotificationData(const std::string& methodName, FirstType&& first, RestTypes&&... rest) {
             Request::Parameters params;
             params.emplace_back(std::forward<FirstType>(first));
@@ -84,28 +81,24 @@ namespace jsonrpc {
 
     private:
         template<typename FirstType, typename... RestTypes>
-        std::shared_ptr<FormattedData> BuildRequestDataInternal(const std::string& methodName, Request::Parameters& params, FirstType&& first, RestTypes&&... rest) {
+        std::string BuildRequestDataInternal(const std::string& methodName, Request::Parameters& params, FirstType&& first, RestTypes&&... rest) {
             params.emplace_back(std::forward<FirstType>(first));
             return BuildRequestDataInternal(methodName, params, std::forward<RestTypes>(rest)...);
         }
 
-        std::shared_ptr<FormattedData> BuildRequestDataInternal(const std::string& methodName, const Request::Parameters& params) {
-            auto writer = myFormatHandler.CreateWriter();
+        std::string BuildRequestDataInternal(const std::string& methodName, const Request::Parameters& params) {
             const auto id = myId++;
-            Request::Write(methodName, params, id, *writer);
-            return writer->GetData();
+            return Request::Write(methodName, params, id);
         }
 
         template<typename FirstType, typename... RestTypes>
-        std::shared_ptr<FormattedData> BuildNotificationDataInternal(const std::string& methodName, Request::Parameters& params, FirstType&& first, RestTypes&&... rest) {
+        std::string BuildNotificationDataInternal(const std::string& methodName, Request::Parameters& params, FirstType&& first, RestTypes&&... rest) {
             params.emplace_back(std::forward<FirstType>(first));
             return BuildNotificationDataInternal(methodName, params, std::forward<RestTypes>(rest)...);
         }
 
-        std::shared_ptr<FormattedData> BuildNotificationDataInternal(const std::string& methodName, const Request::Parameters& params) {
-            auto writer = myFormatHandler.CreateWriter();
-            Request::Write(methodName, params, false, *writer);
-            return writer->GetData();
+        std::string BuildNotificationDataInternal(const std::string& methodName, const Request::Parameters& params) {
+            return Request::Write(methodName, params, false);
         }
 
         Response ParseResponseInternal(const std::string& aResponseData) {

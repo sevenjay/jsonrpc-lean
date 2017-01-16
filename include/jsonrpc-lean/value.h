@@ -30,7 +30,6 @@
 
 #include "util.h"
 #include "fault.h"
-#include "writer.h"
 
 struct tm;
 #include "../json11.hpp"

@@ -27,9 +27,6 @@
 #include "jsonformathandler.h"
 #include "reader.h"
 #include "response.h"
-#include "writer.h"
-#include "formatteddata.h"
-#include "jsonformatteddata.h"
 #include "dispatcher.h"
 
 
@@ -71,7 +68,6 @@ namespace jsonrpc {
                 return nullptr;
             }
             
-            auto writer = fmtHandler->CreateWriter();
             Json responseJson;
 
             try {

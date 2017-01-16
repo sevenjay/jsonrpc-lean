@@ -56,7 +56,7 @@ void LogCall(jsonrpc::Client& client, std::string method, T&&... args) {
     LogArguments(std::forward<T>(args)...);
     std::cout << "):\n>>> ";
     try {
-        std::cout << client.BuildRequestData(std::move(method), std::forward<T>(args)...)->GetData();
+        std::cout << client.BuildRequestData(std::move(method), std::forward<T>(args)...);
     } catch (const jsonrpc::Fault& fault) {
         ++CallErrors;
         std::cout << "Error: " << fault.what();
@@ -70,7 +70,7 @@ void LogNotificationCall(jsonrpc::Client& client, std::string method, T&&... arg
     LogArguments(std::forward<T>(args)...);
     std::cout << "):\n>>> ";
     try {
-        std::cout << client.BuildNotificationData(std::move(method), std::forward<T>(args)...)->GetData();
+        std::cout << client.BuildNotificationData(std::move(method), std::forward<T>(args)...);
     }
     catch (const jsonrpc::Fault& fault) {
         ++CallErrors;
