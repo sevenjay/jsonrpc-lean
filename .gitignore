@@ -1,3 +1,7 @@
+include/rapidjson/
+
+
+
 # Created by https://www.gitignore.io/api/xcode,c++,visualstudio
 
 ### internal files

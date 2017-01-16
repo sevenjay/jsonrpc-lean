@@ -17,8 +17,6 @@
 // along with this library; if not, write to the Free Software Foundation,
 // Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 
-#include "stdafx.h"
-
 #include "../include/jsonrpc-lean/jsonformathandler.h"
 #include "../include/jsonrpc-lean/formathandler.h"
 #include "../include/jsonrpc-lean/server.h"
