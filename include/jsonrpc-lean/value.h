@@ -33,6 +33,8 @@
 #include "writer.h"
 
 struct tm;
+#include "../json11.hpp"
+using Json=json11::Json;
 
 namespace jsonrpc {
 
@@ -239,48 +241,50 @@ namespace jsonrpc {
 
         Type GetType() const { return myType; }
 
-        void Write(Writer& writer) const {
+        Json toJson() const {
             switch (myType) {
-            case Type::ARRAY:
-                writer.StartArray();
+            case Type::ARRAY:{
+                std::vector<Json> array;
                 for (auto& element : *as.myArray) {
-                    element.Write(writer);
+                    array.push_back(element.toJson());
                 }
-                writer.EndArray();
+                return Json(array);
                 break;
+            }
             case Type::BINARY:
-                writer.WriteBinary(as.myString->data(), as.myString->size());
+                return Json(*as.myString);
                 break;
             case Type::BOOLEAN:
-                writer.Write(as.myBoolean);
+                return Json(as.myBoolean);
                 break;
             case Type::DATE_TIME:
-                writer.Write(*as.myDateTime);
+                return Json();
                 break;
             case Type::NUMBER:
-                writer.Write(as.myNumber);
+                return Json(as.myNumber);
                 break;
             case Type::INTEGER_32:
-                writer.Write(as.myInteger32);
+                return Json(as.myInteger32);
                 break;
             case Type::INTEGER_64:
-                writer.Write(as.myInteger64);
+                return Json((int)as.myInteger64);
                 break;
             case Type::NIL:
-                writer.WriteNull();
+                return Json();
                 break;
             case Type::STRING:
-                writer.Write(*as.myString);
+                return Json(*as.myString);
                 break;
-            case Type::STRUCT:
-                writer.StartStruct();
+            case Type::STRUCT:{
+                Json::object object;
                 for (auto& element : *as.myStruct) {
-                    writer.StartStructElement(element.first);
-                    element.second.Write(writer);
-                    writer.EndStructElement();
+                    object[element.first] = element.second.toJson();
                 }
-                writer.EndStruct();
+                return Json(object);
                 break;
+            }
+            default:
+                return Json();
             }
         }
 

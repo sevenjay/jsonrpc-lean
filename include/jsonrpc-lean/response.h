@@ -20,11 +20,10 @@
 #ifndef JSONRPC_LEAN_RESPONSE_H
 #define JSONRPC_LEAN_RESPONSE_H
 
+#include "json.h"
 #include "value.h"
 
 namespace jsonrpc {
-
-    class Writer;
 
     class Response {
     public:
@@ -39,19 +38,25 @@ namespace jsonrpc {
             myFaultString(std::move(faultString)),
             myId(std::move(id)) {
         }
+        Json::object ResponseObject() const {
+            Json::object ResponseJson;
+            ResponseJson[json::JSONRPC_NAME] = json::JSONRPC_VERSION_2_0;
+            ResponseJson[json::ID_NAME] = myId.toJson();
+            return std::move(ResponseJson);
+        }
 
-        void Write(Writer& writer) const {
-            writer.StartDocument();
+        Json Write() const {
+            Json::object ResponseJson = ResponseObject();
             if (myIsFault) {
-                writer.StartFaultResponse(myId);
-                writer.WriteFault(myFaultCode, myFaultString);
-                writer.EndFaultResponse();
+                Json::object ErrorJson;
+                ErrorJson[json::ERROR_CODE_NAME] = myFaultCode;
+                ErrorJson[json::ERROR_MESSAGE_NAME] = myFaultString;
+                ResponseJson[json::ERROR_NAME] = Json(ErrorJson);
             } else {
-                writer.StartResponse(myId);
-                myResult.Write(writer);
-                writer.EndResponse();
+                ResponseJson[json::ID_NAME] = myId.toJson();
+                ResponseJson[json::RESULT_NAME] = myResult.toJson();
             }
-            writer.EndDocument();
+            return Json(ResponseJson);
         }
 
         Value& GetResult() { return myResult; }

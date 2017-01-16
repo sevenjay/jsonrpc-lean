@@ -20,6 +20,7 @@
 #ifndef JSONRPC_LEAN_REQUEST_H
 #define JSONRPC_LEAN_REQUEST_H
 
+#include "json.h"
 #include "value.h"
 
 #include <deque>
@@ -44,20 +45,23 @@ namespace jsonrpc {
         const Parameters& GetParameters() const { return myParameters; }
         const Value& GetId() const { return myId; }
 
-        void Write(Writer& writer) const {
-            Write(myMethodName, myParameters, myId, writer);
+        std::string Write(Writer& writer) const {
+            return Write(myMethodName, myParameters, myId, writer);
         }
 
-        static void Write(const std::string& methodName, const Parameters& params, const Value& id, Writer& writer) {
-            writer.StartDocument();
-            writer.StartRequest(methodName, id);
-            for (auto& param : params) {
-                writer.StartParameter();
-                param.Write(writer);
-                writer.EndParameter();
-            }
-            writer.EndRequest();
-            writer.EndDocument();
+        static std::string Write(const std::string& methodName, const Parameters& params, const Value& id, Writer& writer) {
+        Json::object RequestJson;
+        RequestJson[json::JSONRPC_NAME] = json::JSONRPC_VERSION_2_0;
+        RequestJson[json::METHOD_NAME] = methodName;
+        RequestJson[json::ID_NAME] = id.toJson();
+
+        Json::array array;
+        for (auto& param : params) {
+            array.push_back(param.toJson());
+        }
+        RequestJson[json::PARAMS_NAME] = Json(array);
+
+        return Json(RequestJson).dump();
         }
 
     private:

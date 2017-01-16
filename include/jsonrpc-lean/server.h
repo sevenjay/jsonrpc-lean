@@ -56,7 +56,7 @@ namespace jsonrpc {
         // aContentType is here to allow future implementation of other rpc formats with minimal code changes
         // Will return NULL if no FormatHandler is found, otherwise will return a FormatedData
         // If aRequestData is a Notification (the client doesn't expect a response), the returned FormattedData will have an empty ->GetData() buffer and ->GetSize() will be 0
-        std::shared_ptr<jsonrpc::FormattedData> HandleRequest(const std::string& aRequestData, const std::string& aContentType = "application/json") {
+        std::string HandleRequest(const std::string& aRequestData, const std::string& aContentType = "application/json") {
 
             // first find the correct handler
             FormatHandler *fmtHandler = nullptr;
@@ -72,6 +72,7 @@ namespace jsonrpc {
             }
             
             auto writer = fmtHandler->CreateWriter();
+            Json responseJson;
 
             try {
                 auto reader = fmtHandler->CreateReader(aRequestData);
@@ -81,13 +82,13 @@ namespace jsonrpc {
                 auto response = myDispatcher.Invoke(request.GetMethodName(), request.GetParameters(), request.GetId());
                 if (!response.GetId().IsBoolean() || response.GetId().AsBoolean() != false) {
                     // if Id is false, this is a notification and we don't have to write a response
-                    response.Write(*writer);
+                    responseJson = response.Write();
                 }
             } catch (const Fault& ex) {
-                Response(ex.GetCode(), ex.GetString(), Value()).Write(*writer);
+                responseJson = Response(ex.GetCode(), ex.GetString(), Value()).Write();
             }
 
-            return writer->GetData();
+            return std::move(responseJson.dump());
         }
     private:
         Dispatcher myDispatcher;
