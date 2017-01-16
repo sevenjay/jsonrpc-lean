@@ -29,13 +29,13 @@
 
 class Math {
 public:
-	int Add(int a, int b) {
+	double Add(double a, double b) {
 		return a + b;
 	}
 
-	int64_t AddArray(const jsonrpc::Value::Array& a) {
-		return std::accumulate(a.begin(), a.end(), int64_t(0),
-			[](const int64_t& a, const jsonrpc::Value& b) { return a + b.AsNumber(); });
+	double AddArray(const jsonrpc::Value::Array& a) {
+		return std::accumulate(a.begin(), a.end(), double(0),
+			[](const double& a, const jsonrpc::Value& b) { return a + b.AsNumber(); });
 	};
 };
 
@@ -99,27 +99,27 @@ void RunServer() {
 	std::string outputFormatedData;
     std::cout << "request: " << addRequest << std::endl;
     outputFormatedData = server.HandleRequest(addRequest);
-    std::cout << "response: " << outputFormatedData << std::endl;
+    std::cout << "response: " << outputFormatedData << std::endl << std::endl;;
 
     std::cout << "request: " << concatRequest << std::endl;
     outputFormatedData = server.HandleRequest(concatRequest);
-    std::cout << "response: " << outputFormatedData << std::endl;
+    std::cout << "response: " << outputFormatedData << std::endl << std::endl;;
 
     std::cout << "request: " << addArrayRequest << std::endl;
     outputFormatedData = server.HandleRequest(addArrayRequest);
-    std::cout << "response: " << outputFormatedData << std::endl;
+    std::cout << "response: " << outputFormatedData << std::endl << std::endl;;
 
     std::cout << "request: " << toBinaryRequest << std::endl;
     outputFormatedData = server.HandleRequest(toBinaryRequest);
-    std::cout << "response: " << outputFormatedData << std::endl;
+    std::cout << "response: " << outputFormatedData << std::endl << std::endl;;
 
     std::cout << "request: " << toStructRequest << std::endl;
     outputFormatedData = server.HandleRequest(toStructRequest);
-    std::cout << "response: " << outputFormatedData << std::endl;
+    std::cout << "response: " << outputFormatedData << std::endl << std::endl;;
 
     std::cout << "request: " << printNotificationRequest << std::endl;
     outputFormatedData = server.HandleRequest(printNotificationRequest);
-    std::cout << "response size: " << outputFormatedData.size() << std::endl;
+    std::cout << "response size: " << outputFormatedData.size() << std::endl << std::endl;;
 }
 
 int main() {

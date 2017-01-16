@@ -43,10 +43,7 @@ namespace jsonrpc {
         JsonReader(const std::string& data) {
 
             std::string err;
-            printf("\ndata: %s", data.c_str());
             myDocument = Json::parse(data, err);
-
-            printf("\njson: %s", myDocument.dump().c_str());
 
             // TODO(jsiloto): Add exception
             if (!err.empty()) {
@@ -75,11 +72,8 @@ namespace jsonrpc {
                     throw InvalidRequestFault();
                 }
 
-                for (auto& param: params.object_items()) {
-                	std::string str;
-                	param.second.dump(str);
-                	printf("str: %s", str.c_str());
-                    parameters.push_back(GetValue(param.second));
+                for (auto& param: params.array_items()) {
+                    parameters.push_back(GetValue(param));
                 }
             }
 
