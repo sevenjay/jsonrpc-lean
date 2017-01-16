@@ -48,7 +48,7 @@ namespace jsonrpc {
             BINARY,
             BOOLEAN,
             DATE_TIME,
-            DOUBLE,
+            NUMBER,
             INTEGER_32,
             INTEGER_64,
             NIL,
@@ -69,18 +69,18 @@ namespace jsonrpc {
             as.myDateTime->tm_isdst = -1;
         }
 
-        Value(double value) : myType(Type::DOUBLE) { as.myDouble = value; }
+        Value(double value) : myType(Type::NUMBER) { as.myNumber = value; }
 
         Value(int32_t value) : myType(Type::INTEGER_32) {
             as.myInteger32 = value;
             as.myInteger64 = value;
-            as.myDouble = value;
+            as.myNumber = value;
         }
 
         Value(int64_t value) : myType(Type::INTEGER_64) {
             as.myInteger32 = static_cast<int32_t>(value);
             as.myInteger64 = value;
-            as.myDouble = static_cast<double>(value);
+            as.myNumber = static_cast<double>(value);
         }
 
         Value(const char* value) : Value(String(value)) {}
@@ -122,7 +122,7 @@ namespace jsonrpc {
         explicit Value(const Value& other) : myType(other.myType), as(other.as) {
             switch (myType) {
             case Type::BOOLEAN:
-            case Type::DOUBLE:
+            case Type::NUMBER:
             case Type::INTEGER_32:
             case Type::INTEGER_64:
             case Type::NIL:
@@ -166,7 +166,7 @@ namespace jsonrpc {
         bool IsBinary() const { return myType == Type::BINARY; }
         bool IsBoolean() const { return myType == Type::BOOLEAN; }
         bool IsDateTime() const { return myType == Type::DATE_TIME; }
-        bool IsDouble() const { return myType == Type::DOUBLE; }
+        bool IsDouble() const { return myType == Type::NUMBER; }
         bool IsInteger32() const { return myType == Type::INTEGER_32; }
         bool IsInteger64() const { return myType == Type::INTEGER_64; }
         bool IsNil() const { return myType == Type::NIL; }
@@ -196,9 +196,9 @@ namespace jsonrpc {
             throw InvalidParametersFault();
         }
 
-        const double& AsDouble() const {
+        const double& AsNumber() const {
             if (IsDouble() || IsInteger32() || IsInteger64()) {
-                return as.myDouble;
+                return as.myNumber;
             }
             throw InvalidParametersFault();
         }
@@ -257,8 +257,8 @@ namespace jsonrpc {
             case Type::DATE_TIME:
                 writer.Write(*as.myDateTime);
                 break;
-            case Type::DOUBLE:
-                writer.Write(as.myDouble);
+            case Type::NUMBER:
+                writer.Write(as.myNumber);
                 break;
             case Type::INTEGER_32:
                 writer.Write(as.myInteger32);
@@ -305,7 +305,7 @@ namespace jsonrpc {
                 break;
 
             case Type::BOOLEAN:
-            case Type::DOUBLE:
+            case Type::NUMBER:
             case Type::INTEGER_32:
             case Type::INTEGER_64:
             case Type::NIL:
@@ -323,7 +323,7 @@ namespace jsonrpc {
             String* myString;
             Struct* myStruct;
             struct {
-                double myDouble;
+                double myNumber;
                 int32_t myInteger32;
                 int64_t myInteger64;
             };
@@ -343,7 +343,7 @@ namespace jsonrpc {
     }
 
     template<> inline const double& Value::AsType<double>() const {
-        return AsDouble();
+        return AsNumber();
     }
 
     template<> inline const int32_t& Value::AsType<int32_t>() const {
@@ -397,14 +397,14 @@ namespace jsonrpc {
         case Value::Type::DATE_TIME:
             os << util::FormatIso8601DateTime(value.AsDateTime());
             break;
-        case Value::Type::DOUBLE:
-            os << value.AsDouble();
+        case Value::Type::NUMBER:
+            os << value.AsNumber();
             break;
         case Value::Type::INTEGER_32:
-            os << value.AsInteger32();
+            os << static_cast<int32_t>(value.AsNumber());
             break;
         case Value::Type::INTEGER_64:
-            os << value.AsInteger64();
+            os << static_cast<int64_t>(value.AsNumber());
             break;
         case Value::Type::NIL:
             os << "<nil>";

@@ -35,7 +35,7 @@ public:
 
 	int64_t AddArray(const jsonrpc::Value::Array& a) {
 		return std::accumulate(a.begin(), a.end(), int64_t(0),
-			[](const int64_t& a, const jsonrpc::Value& b) { return a + b.AsInteger32(); });
+			[](const int64_t& a, const jsonrpc::Value& b) { return a + b.AsNumber(); });
 	};
 };
 

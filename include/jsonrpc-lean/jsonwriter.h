@@ -184,9 +184,9 @@ namespace jsonrpc {
                 if (id.IsString()) {
                     myRequestData->Writer.String(id.AsString().data(), id.AsString().size(), true);
                 } else if (id.IsInteger32()) {
-                    myRequestData->Writer.Int(id.AsInteger32());
+                    myRequestData->Writer.Int(id.AsNumber());
                 } else if (id.IsInteger64()) {
-                    myRequestData->Writer.Int64(id.AsInteger64());
+                    myRequestData->Writer.Int64(id.AsNumber());
                 } else {
                     myRequestData->Writer.Null();
                 }

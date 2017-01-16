@@ -93,11 +93,11 @@ int main(int argc, char** argv) {
 
         LogCall(client, "add", 3, 2);
 		jsonrpc::Response parsedResponse = client.ParseResponse(addResponse);
-        std::cout << "Parsed response: " << parsedResponse.GetResult().AsInteger32() << std::endl << std::endl;
+        std::cout << "Parsed response: " << parsedResponse.GetResult() << std::endl << std::endl;
 		
         LogCall(client, "concat", "Hello, ", "World!");
 		parsedResponse = client.ParseResponse(concatResponse);
-        std::cout << "Parsed response: " << parsedResponse.GetResult().AsString() << std::endl << std::endl;
+        std::cout << "Parsed response: " << parsedResponse.GetResult() << std::endl << std::endl;
 
         jsonrpc::Request::Parameters params;
         {
@@ -108,7 +108,7 @@ int main(int argc, char** argv) {
         }
         LogCall(client, "add_array", params);
 		parsedResponse = client.ParseResponse(addArrayResponse);
-        std::cout << "Parsed response: " << parsedResponse.GetResult().AsInteger64() << std::endl << std::endl;
+        std::cout << "Parsed response: " << parsedResponse.GetResult() << std::endl << std::endl;
 
         LogCall(client, "to_binary", "Hello World!"); // once the result here is parsed, the underlying AsString can be just an array of bytes, not necessarily printable characters
         LogCall(client, "from_binary", jsonrpc::Value("Hi!", true)); // "Hi!" can be an array of bytes, not necessarily printable characters
@@ -127,9 +127,9 @@ int main(int argc, char** argv) {
         auto structValue = parsedResponse.GetResult().AsStruct();
 
         std::cout << "Parsed response: " << std::endl;
-        std::cout << "   0 : " << structValue["0"].AsInteger32() << std::endl;
-        std::cout << "   1 : " << structValue["1"].AsString() << std::endl;
-        std::cout << "   2 : [" << structValue["2"].AsArray()[0] << ", " << structValue["2"].AsArray()[1] << "]" << std::endl;
+        std::cout << "   0 : " << structValue["0"]<< std::endl;
+        std::cout << "   1 : " << structValue["1"]<< std::endl;
+        std::cout << "   2 : [" << structValue["2"][0] << ", " << structValue["2"].AsArray()[1] << "]" << std::endl;
         std::cout << std::endl;
 
         params.clear();
