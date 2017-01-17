@@ -20,7 +20,6 @@
 #ifndef JSONRPC_LEAN_JSONREADER_H
 #define JSONRPC_LEAN_JSONREADER_H
 
-#include "reader.h"
 #include "fault.h"
 #include "json.h"
 #include "request.h"
@@ -38,7 +37,7 @@ using Json=json11::Json;
 
 namespace jsonrpc {
 
-    class JsonReader final : public Reader {
+    class JsonReader {
     public:
         JsonReader(const std::string& data) {
 
@@ -53,7 +52,7 @@ namespace jsonrpc {
         }
 
         // Reader
-        Request GetRequest() override {
+        Request GetRequest() {
             if (!myDocument.is_object()) {
                 throw InvalidRequestFault();
             }
@@ -87,7 +86,7 @@ namespace jsonrpc {
                 GetId(id));
         }
 
-        Response GetResponse() override {
+        Response GetResponse() {
 
 
             if (!myDocument.is_object()) {
@@ -137,7 +136,7 @@ namespace jsonrpc {
             }
         }
 
-        Value GetValue() override {
+        Value GetValue() {
             return GetValue(myDocument);
         }
 

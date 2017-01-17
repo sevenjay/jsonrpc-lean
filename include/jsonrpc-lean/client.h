@@ -22,7 +22,6 @@
 #include "value.h"
 #include "fault.h"
 #include "jsonreader.h"
-#include "reader.h"
 #include "response.h"
 #include "dispatcher.h"
 

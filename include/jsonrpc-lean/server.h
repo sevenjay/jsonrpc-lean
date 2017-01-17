@@ -23,7 +23,6 @@
 #include "request.h"
 #include "value.h"
 #include "fault.h"
-#include "reader.h"
 #include "response.h"
 #include "dispatcher.h"
 #include "jsonreader.h"
