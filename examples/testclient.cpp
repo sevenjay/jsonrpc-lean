@@ -111,7 +111,7 @@ int main(int argc, char** argv) {
 		printf("Parsed response: %s\n\n", toString(parsedResponse.GetResult()).c_str());
 
         LogCall(client, "to_binary", "Hello World!"); // once the result here is parsed, the underlying AsString can be just an array of bytes, not necessarily printable characters
-        LogCall(client, "from_binary", jsonrpc::Value("Hi!", true)); // "Hi!" can be an array of bytes, not necessarily printable characters
+        LogCall(client, "from_binary", jsonrpc::Value("Hi!")); // "Hi!" can be an array of bytes, not necessarily printable characters
 		LogNotificationCall(client, "print_notification", "This is just a notification, no response expected!");
 
         params.clear();

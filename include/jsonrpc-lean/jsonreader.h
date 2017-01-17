@@ -173,8 +173,7 @@ namespace jsonrpc {
             }
             case Json::STRING: {
                 std::string str = value.string_value();
-                const bool binary = str.find('\0') != std::string::npos;
-                return Value(std::move(str), binary);
+                return Value(std::move(str));
             }
             case Json::NUMBER:
                 return Value(value.number_value());

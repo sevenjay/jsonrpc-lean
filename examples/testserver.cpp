@@ -40,10 +40,6 @@ std::string Concat(const std::string& a, const std::string& b) {
 	return a + b;
 }
 
-jsonrpc::Value ToBinary(const std::string& s) {
-	return jsonrpc::Value(s, true);
-}
-
 std::string FromBinary(const jsonrpc::Value& b) {
 	return{ b.AsBinary().begin(), b.AsBinary().end() };
 }
@@ -71,7 +67,6 @@ void RunServer() {
 	
 	// if it is just a regular function (non-member or static), you can you the 2 parameter AddMethod
 	dispatcher.AddMethod("concat", &Concat);
-	dispatcher.AddMethod("to_binary", &ToBinary);
 	dispatcher.AddMethod("from_binary", &FromBinary);
 	dispatcher.AddMethod("to_struct", &ToStruct);
 	dispatcher.AddMethod("print_notification", &PrintNotification);
@@ -86,7 +81,6 @@ void RunServer() {
 	const char addRequest[] = "{\"jsonrpc\":\"2.0\",\"method\":\"add\",\"id\":0,\"params\":[3,2]}";
 	const char concatRequest[] = "{\"jsonrpc\":\"2.0\",\"method\":\"concat\",\"id\":1,\"params\":[\"Hello, \",\"World!\"]}";
 	const char addArrayRequest[] = "{\"jsonrpc\":\"2.0\",\"method\":\"add_array\",\"id\":2,\"params\":[[1000,2147483647]]}";
-	const char toBinaryRequest[] = "{\"jsonrpc\":\"2.0\",\"method\":\"to_binary\",\"id\":3,\"params\":[\"Hello World!\"]}";
 	const char toStructRequest[] = "{\"jsonrpc\":\"2.0\",\"method\":\"to_struct\",\"id\":4,\"params\":[[12,\"foobar\",[12,\"foobar\"]]]}";
 	const char printNotificationRequest[] = "{\"jsonrpc\":\"2.0\",\"method\":\"print_notification\",\"params\":[\"This is just a notification, no response expected!\"]}";
 
@@ -101,10 +95,6 @@ void RunServer() {
 
     printf("request %s\n", addArrayRequest);
     outputFormatedData = server.HandleRequest(addArrayRequest);
-    printf("response: %s\n\n", outputFormatedData.c_str());
-
-    printf("request %s\n", toBinaryRequest);
-    outputFormatedData = server.HandleRequest(toBinaryRequest);
     printf("response: %s\n\n", outputFormatedData.c_str());
 
     printf("request %s\n", toStructRequest);

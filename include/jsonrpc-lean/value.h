@@ -45,8 +45,7 @@ namespace jsonrpc {
 
         enum class Type {
             ARRAY,
-            BINARY,
-            BOOLEAN,
+            BOOL,
             NUMBER,
             NUL,
             STRING,
@@ -59,7 +58,7 @@ namespace jsonrpc {
             as.myArray = new Array(std::move(value));
         }
 
-        Value(bool value) : myType(Type::BOOLEAN) { as.myBoolean = value; }
+        Value(bool value) : myType(Type::BOOL) { as.myBoolean = value; }
 
         Value(double value) : myType(Type::NUMBER) { as.myNumber = value; }
 
@@ -73,7 +72,7 @@ namespace jsonrpc {
 
         Value(const char* value) : Value(String(value)) {}
 
-        Value(String value, bool binary = false) : myType(binary ? Type::BINARY : Type::STRING) {
+        Value(String value) : myType(Type::STRING) {
             as.myString = new String(std::move(value));
         }
 
@@ -109,7 +108,7 @@ namespace jsonrpc {
 
         explicit Value(const Value& other) : myType(other.myType), as(other.as) {
             switch (myType) {
-            case Type::BOOLEAN:
+            case Type::BOOL:
             case Type::NUMBER:
             case Type::NUL:
                 break;
@@ -117,7 +116,6 @@ namespace jsonrpc {
             case Type::ARRAY:
                 as.myArray = new Array(other.AsArray());
                 break;
-            case Type::BINARY:
             case Type::STRING:
                 as.myString = new String(other.AsString());
                 break;
@@ -146,8 +144,7 @@ namespace jsonrpc {
         }
 
         bool IsArray() const { return myType == Type::ARRAY; }
-        bool IsBinary() const { return myType == Type::BINARY; }
-        bool IsBoolean() const { return myType == Type::BOOLEAN; }
+        bool IsBoolean() const { return myType == Type::BOOL; }
         bool IsNumber() const { return myType == Type::NUMBER; }
         bool IsNil() const { return myType == Type::NUL; }
         bool IsString() const { return myType == Type::STRING; }
@@ -177,7 +174,7 @@ namespace jsonrpc {
         }
 
         const String& AsString() const {
-            if (IsString() || IsBinary()) {
+            if (IsString()) {
                 return *as.myString;
             }
             throw InvalidParametersFault();
@@ -205,10 +202,7 @@ namespace jsonrpc {
                 return Json(array);
                 break;
             }
-            case Type::BINARY:
-                return Json(*as.myString);
-                break;
-            case Type::BOOLEAN:
+            case Type::BOOL:
                 return Json(as.myBoolean);
                 break;
             case Type::NUMBER:
@@ -242,14 +236,13 @@ namespace jsonrpc {
             case Type::ARRAY:
                 delete as.myArray;
                 break;
-            case Type::BINARY:
             case Type::STRING:
                 delete as.myString;
                 break;
             case Type::OBJECT:
                 delete as.myStruct;
                 break;
-            case Type::BOOLEAN:
+            case Type::BOOL:
             case Type::NUMBER:
             case Type::NUL:
                 break;
@@ -320,10 +313,7 @@ namespace jsonrpc {
             ret += ']';
             break;
         }
-        case Value::Type::BINARY:
-            ret += util::Base64Encode(value.AsBinary());
-            break;
-        case Value::Type::BOOLEAN:
+        case Value::Type::BOOL:
             ret += value.AsBoolean();
             break;
         case Value::Type::NUMBER:
