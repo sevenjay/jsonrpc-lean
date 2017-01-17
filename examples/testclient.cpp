@@ -22,7 +22,6 @@
 #include "../include/jsonrpc-lean/jsonformathandler.h"
 
 #include <cstring>
-#include <iostream>
 #include <limits>
 #include <memory>
 
@@ -30,21 +29,22 @@ void LogArguments() {}
 
 template<typename Head>
 void LogArguments(Head&& head) {
-    std::cout << head;
+    printf("%s", jsonrpc::toString(head).c_str());
 }
 
 template<typename Head, typename... Tail>
 void LogArguments(Head&& head, Tail&&... tail) {
-    std::cout << head << ", ";
+    std::string str = jsonrpc::toString(head) + ", ";
+    printf("%s", str.c_str());
     LogArguments(std::forward<Tail>(tail)...);
 }
 
 void LogArguments(jsonrpc::Request::Parameters& params) {
     for (auto it = params.begin(); it != params.end(); ++it) {
         if (it != params.begin()) {
-            std::cout << ", ";
+            printf(", ");
         }
-        std::cout << *it;
+        printf("%s", it->toJson().dump().c_str());
     }
 }
 
@@ -52,31 +52,33 @@ size_t CallErrors = 0;
 
 template<typename... T>
 void LogCall(jsonrpc::Client& client, std::string method, T&&... args) {
-    std::cout << method << '(';
+    printf("%s(", method.c_str());
     LogArguments(std::forward<T>(args)...);
-    std::cout << "):\n>>> ";
+    printf("):\n>>> ");
     try {
-        std::cout << client.BuildRequestData(std::move(method), std::forward<T>(args)...);
+        std::string str = client.BuildRequestData(std::move(method), std::forward<T>(args)...);
+        printf("%s", str.c_str());
     } catch (const jsonrpc::Fault& fault) {
         ++CallErrors;
-        std::cout << "Error: " << fault.what();
+        printf("Error: %s", fault.what());
     }
-    std::cout << "\n";
+    printf("\n");
 }
 
 template<typename... T>
 void LogNotificationCall(jsonrpc::Client& client, std::string method, T&&... args) {
-    std::cout << method << '(';
+    printf("%s(", method.c_str());
     LogArguments(std::forward<T>(args)...);
-    std::cout << "):\n>>> ";
+    printf("):\n>>> ");
     try {
-        std::cout << client.BuildNotificationData(std::move(method), std::forward<T>(args)...);
+        std::string str = client.BuildNotificationData(std::move(method), std::forward<T>(args)...);
+        printf("%s", str.c_str());
     }
     catch (const jsonrpc::Fault& fault) {
         ++CallErrors;
-        std::cout << "Error: " << fault.what();
+        printf("Error: %s", fault.what());
     }
-    std::cout << "\n\n";
+    printf("\n\n");
 }
 
 int main(int argc, char** argv) {
@@ -93,11 +95,11 @@ int main(int argc, char** argv) {
 
         LogCall(client, "add", 3, 2);
 		jsonrpc::Response parsedResponse = client.ParseResponse(addResponse);
-        std::cout << "Parsed response: " << parsedResponse.GetResult() << std::endl << std::endl;
+		printf("Parsed response: %f\n\n", parsedResponse.GetResult().AsNumber());
 		
         LogCall(client, "concat", "Hello, ", "World!");
 		parsedResponse = client.ParseResponse(concatResponse);
-        std::cout << "Parsed response: " << parsedResponse.GetResult() << std::endl << std::endl;
+        printf("Parsed response: %s\n\n", toString(parsedResponse.GetResult()).c_str());
 
         jsonrpc::Request::Parameters params;
         {
@@ -108,7 +110,7 @@ int main(int argc, char** argv) {
         }
         LogCall(client, "add_array", params);
 		parsedResponse = client.ParseResponse(addArrayResponse);
-        std::cout << "Parsed response: " << parsedResponse.GetResult() << std::endl << std::endl;
+		printf("Parsed response: %s\n\n", toString(parsedResponse.GetResult()).c_str());
 
         LogCall(client, "to_binary", "Hello World!"); // once the result here is parsed, the underlying AsString can be just an array of bytes, not necessarily printable characters
         LogCall(client, "from_binary", jsonrpc::Value("Hi!", true)); // "Hi!" can be an array of bytes, not necessarily printable characters
@@ -124,13 +126,7 @@ int main(int argc, char** argv) {
         }
         LogCall(client, "to_struct", params);
 		parsedResponse = client.ParseResponse(toStructResponse);
-        auto structValue = parsedResponse.GetResult().AsStruct();
-
-        std::cout << "Parsed response: " << std::endl;
-        std::cout << "   0 : " << structValue["0"]<< std::endl;
-        std::cout << "   1 : " << structValue["1"]<< std::endl;
-        std::cout << "   2 : [" << structValue["2"][0] << ", " << structValue["2"].AsArray()[1] << "]" << std::endl;
-        std::cout << std::endl;
+		printf("Parsed response: %s\n\n", toString(parsedResponse.GetResult()).c_str());
 
         params.clear();
         {
@@ -166,12 +162,12 @@ int main(int argc, char** argv) {
         }
 
     } catch (const std::exception& ex) {
-        std::cerr << "Error: " << ex.what() << "\n";
+        printf("Error: %s\n", ex.what());
         return 1;
     }
 
     if (CallErrors > 0) {
-        std::cerr << "Error: " << CallErrors << " call(s) failed\n";
+        printf("Error: %d call(s) failed\n", CallErrors);
         return 1;
     }
 

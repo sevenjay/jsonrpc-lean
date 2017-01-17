@@ -26,7 +26,6 @@
 #include <string>
 #include <unordered_map>
 #include <vector>
-#include <ostream>
 
 #include "util.h"
 #include "fault.h"
@@ -377,58 +376,59 @@ namespace jsonrpc {
         return AsStruct().at(key);
     }
 
-    inline std::ostream& operator<<(std::ostream& os, const Value& value) {
+    std::string toString(const Value& value) {
+        std::string ret;
         switch (value.GetType()) {
         case Value::Type::ARRAY: {
-            os << '[';
+            ret += "[";
             auto& a = value.AsArray();
             for (auto it = a.begin(); it != a.end(); ++it) {
                 if (it != a.begin()) {
-                    os << ", ";
+                    ret += ", ";
                 }
-                os << *it;
+                ret += toString(*it);
             }
-            os << ']';
+            ret += ']';
             break;
         }
         case Value::Type::BINARY:
-            os << util::Base64Encode(value.AsBinary());
+            ret += util::Base64Encode(value.AsBinary());
             break;
         case Value::Type::BOOLEAN:
-            os << value.AsBoolean();
+            ret += value.AsBoolean();
             break;
         case Value::Type::DATE_TIME:
-            os << util::FormatIso8601DateTime(value.AsDateTime());
+            ret += util::FormatIso8601DateTime(value.AsDateTime());
             break;
         case Value::Type::NUMBER:
-            os << value.AsNumber();
+            ret += std::to_string(value.AsNumber());
             break;
         case Value::Type::INTEGER_32:
-            os << static_cast<int32_t>(value.AsNumber());
+            ret += std::to_string(static_cast<int32_t>(value.AsNumber()));
             break;
         case Value::Type::INTEGER_64:
-            os << static_cast<int64_t>(value.AsNumber());
+            ret += std::to_string(static_cast<int64_t>(value.AsNumber()));
             break;
         case Value::Type::NIL:
-            os << "<nil>";
+            ret += "<nil>";
             break;
         case Value::Type::STRING:
-            os << '"' << value.AsString() << '"';
+            ret += '"' + value.AsString() + '"';
             break;
         case Value::Type::STRUCT: {
-            os << '{';
+            ret += '{';
             auto& s = value.AsStruct();
             for (auto it = s.begin(); it != s.end(); ++it) {
                 if (it != s.begin()) {
-                    os << ", ";
+                    ret += ", ";
                 }
-                os << it->first << ": " << it->second;
+                ret += toString(it->first) + ": " + toString(it->second);
             }
-            os << '}';
+            ret += '}';
             break;
         }
         }
-        return os;
+        return ret;
     }
 
 } // namespace jsonrpc
