@@ -19,7 +19,6 @@
 
 #include "../include/jsonrpc-lean/client.h"
 #include "../include/jsonrpc-lean/fault.h"
-#include "../include/jsonrpc-lean/jsonformathandler.h"
 
 #include <cstring>
 #include <limits>
@@ -88,10 +87,9 @@ int main(int argc, char** argv) {
     const char addArrayResponse[] = "{\"jsonrpc\":\"2.0\",\"id\":2,\"result\":2147484647}";
     const char toStructResponse[] = "{\"jsonrpc\":\"2.0\",\"id\":4,\"result\":{\"0\":12,\"1\":\"foobar\",\"2\":[12,\"foobar\"]}}";	
 	
-    std::unique_ptr<jsonrpc::FormatHandler> formatHandler(new jsonrpc::JsonFormatHandler());
 
     try {
-        jsonrpc::Client client(*formatHandler);
+        jsonrpc::Client client;
 
         LogCall(client, "add", 3, 2);
 		jsonrpc::Response parsedResponse = client.ParseResponse(addResponse);

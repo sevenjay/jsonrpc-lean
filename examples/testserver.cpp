@@ -17,8 +17,6 @@
 // along with this library; if not, write to the Free Software Foundation,
 // Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 
-#include "../include/jsonrpc-lean/jsonformathandler.h"
-#include "../include/jsonrpc-lean/formathandler.h"
 #include "../include/jsonrpc-lean/server.h"
 
 #include <numeric>
@@ -65,9 +63,6 @@ void PrintNotification(const std::string& a) {
 void RunServer() {
 	Math math;
 	jsonrpc::Server server;
-	
-	jsonrpc::JsonFormatHandler jsonFormatHandler;
-	server.RegisterFormatHandler(jsonFormatHandler);
 
 	auto& dispatcher = server.GetDispatcher();
 	// if it is a member method, you must use this 3 parameter version, passing an instance of an object that implements it

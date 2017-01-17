@@ -21,8 +21,7 @@
 #include "request.h"
 #include "value.h"
 #include "fault.h"
-#include "formathandler.h"
-#include "jsonformathandler.h"
+#include "jsonreader.h"
 #include "reader.h"
 #include "response.h"
 #include "dispatcher.h"
@@ -38,7 +37,7 @@ namespace jsonrpc {
 
     class Client {
     public:
-        Client(FormatHandler& formatHandler) : myFormatHandler(formatHandler), myId(0) {
+        Client() : myId(0) {
 
         }
 
@@ -102,13 +101,12 @@ namespace jsonrpc {
         }
 
         Response ParseResponseInternal(const std::string& aResponseData) {
-            auto reader = myFormatHandler.CreateReader(aResponseData);
-            Response response = reader->GetResponse();
+            auto reader = JsonReader(aResponseData);
+            Response response = reader.GetResponse();
             response.ThrowIfFault();
             return std::move(response);
         }
 
-        FormatHandler& myFormatHandler;
         int32_t myId;
     };
 
