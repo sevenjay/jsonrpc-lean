@@ -56,28 +56,39 @@ namespace jsonrpc {
 
         Value(Array value) : myType(Type::ARRAY) {
             as.myArray = new Array(std::move(value));
+            myObject = toJson();
         }
 
-        Value(bool value) : myType(Type::BOOL) { as.myBoolean = value; }
+        Value(bool value) : myType(Type::BOOL) {
+            as.myBoolean = value;
+            myObject = toJson();
+        }
 
-        Value(double value) : myType(Type::NUMBER) { as.myNumber = value; }
+        Value(double value) : myType(Type::NUMBER) {
+            as.myNumber = value;
+            myObject = toJson();
+        }
 
         Value(int32_t value) : myType(Type::NUMBER) {
             as.myNumber = value;
+            myObject = toJson();
         }
 
         Value(int64_t value) : myType(Type::NUMBER) {
             as.myNumber = static_cast<double>(value);
+            myObject = toJson();
         }
 
         Value(const char* value) : Value(String(value)) {}
 
         Value(String value) : myType(Type::STRING) {
             as.myString = new String(std::move(value));
+            myObject = toJson();
         }
 
         Value(Struct value) : myType(Type::OBJECT) {
             as.myStruct = new Struct(std::move(value));
+            myObject = toJson();
         }
 
         ~Value() {
@@ -90,6 +101,7 @@ namespace jsonrpc {
             for (auto& v : value) {
                 as.myArray->emplace_back(std::move(v));
             }
+            myObject = toJson();
         }
 
         template<typename T>
@@ -97,6 +109,7 @@ namespace jsonrpc {
             for (auto& v : value) {
                 as.myStruct->emplace(v.first, v.second);
             }
+            myObject = toJson();
         }
 
         template<typename T>
@@ -104,6 +117,7 @@ namespace jsonrpc {
             for (auto& v : value) {
                 as.myStruct->emplace(v.first, v.second);
             }
+            myObject = toJson();
         }
 
         explicit Value(const Value& other) : myType(other.myType), as(other.as) {
@@ -123,11 +137,12 @@ namespace jsonrpc {
                 as.myStruct = new Struct(other.AsStruct());
                 break;
             }
+            myObject = toJson();
         }
 
         Value& operator=(const Value&) = delete;
 
-        Value(Value&& other) noexcept : myType(other.myType), as(other.as) {
+        Value(Value&& other) noexcept : myType(other.myType), myObject(other.myObject), as(other.as) {
             other.myType = Type::NUL;
         }
 
@@ -136,6 +151,7 @@ namespace jsonrpc {
                 Reset();
 
                 myType = other.myType;
+                myObject = other.myObject;
                 as = other.as;
 
                 other.myType = Type::NUL;
@@ -143,15 +159,27 @@ namespace jsonrpc {
             return *this;
         }
 
-        bool IsArray() const { return myType == Type::ARRAY; }
-        bool IsBoolean() const { return myType == Type::BOOL; }
-        bool IsNumber() const { return myType == Type::NUMBER; }
-        bool IsNil() const { return myType == Type::NUL; }
-        bool IsString() const { return myType == Type::STRING; }
-        bool IsStruct() const { return myType == Type::OBJECT; }
+        /*
+        bool is_null()   const { return type() == NUL; }
+        bool is_number() const { return type() == NUMBER; }
+        bool is_bool()   const { return type() == BOOL; }
+        bool is_string() const { return type() == STRING; }
+        bool is_array()  const { return type() == ARRAY; }
+        bool is_object() const { return type() == OBJECT; }
+        */
+
+        // Accessors
+        Type type() const { return myType; }
+
+        bool is_array() const { return type() == Type::ARRAY; }
+        bool is_bool() const { return type() == Type::BOOL; }
+        bool is_number() const { return type() == Type::NUMBER; }
+        bool is_null() const { return type() == Type::NUL; }
+        bool is_string() const { return type() == Type::STRING; }
+        bool is_object() const { return type() == Type::OBJECT; }
 
         const Array& AsArray() const {
-            if (IsArray()) {
+            if (is_array()) {
                 return *as.myArray;
             }
             throw InvalidParametersFault();
@@ -160,28 +188,28 @@ namespace jsonrpc {
         const String& AsBinary() const { return AsString(); }
 
         const bool& AsBoolean() const {
-            if (IsBoolean()) {
+            if (is_bool()) {
                 return as.myBoolean;
             }
             throw InvalidParametersFault();
         }
 
         const double& AsNumber() const {
-            if (IsNumber()) {
+            if (is_number()) {
                 return as.myNumber;
             }
             throw InvalidParametersFault();
         }
 
         const String& AsString() const {
-            if (IsString()) {
+            if (is_string()) {
                 return *as.myString;
             }
             throw InvalidParametersFault();
         }
 
         const Struct& AsStruct() const {
-            if (IsStruct()) {
+            if (is_object()) {
                 return *as.myStruct;
             }
             throw InvalidParametersFault();
@@ -249,9 +277,11 @@ namespace jsonrpc {
             }
 
             myType = Type::NUL;
+
         }
 
         Type myType;
+        Json myObject;
         union {
             Array* myArray;
             bool myBoolean;
