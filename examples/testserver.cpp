@@ -21,7 +21,6 @@
 #include "../include/jsonrpc-lean/formathandler.h"
 #include "../include/jsonrpc-lean/server.h"
 
-#include <iostream>
 #include <numeric>
 #include <string>
 #include <memory>
@@ -60,7 +59,7 @@ jsonrpc::Value::Struct ToStruct(const jsonrpc::Value::Array& a) {
 }
 
 void PrintNotification(const std::string& a) {
-    std::cout << "notification: " << a << std::endl;
+    printf("notification %s\n", a.c_str());
 }
 
 void RunServer() {
@@ -97,36 +96,36 @@ void RunServer() {
 	const char printNotificationRequest[] = "{\"jsonrpc\":\"2.0\",\"method\":\"print_notification\",\"params\":[\"This is just a notification, no response expected!\"]}";
 
 	std::string outputFormatedData;
-    std::cout << "request: " << addRequest << std::endl;
+    printf("request %s\n", addRequest);
     outputFormatedData = server.HandleRequest(addRequest);
-    std::cout << "response: " << outputFormatedData << std::endl << std::endl;;
+    printf("response: %s\n\n", outputFormatedData.c_str());
 
-    std::cout << "request: " << concatRequest << std::endl;
+    printf("request %s\n", concatRequest);
     outputFormatedData = server.HandleRequest(concatRequest);
-    std::cout << "response: " << outputFormatedData << std::endl << std::endl;;
+    printf("response: %s\n\n", outputFormatedData.c_str());
 
-    std::cout << "request: " << addArrayRequest << std::endl;
+    printf("request %s\n", addArrayRequest);
     outputFormatedData = server.HandleRequest(addArrayRequest);
-    std::cout << "response: " << outputFormatedData << std::endl << std::endl;;
+    printf("response: %s\n\n", outputFormatedData.c_str());
 
-    std::cout << "request: " << toBinaryRequest << std::endl;
+    printf("request %s\n", toBinaryRequest);
     outputFormatedData = server.HandleRequest(toBinaryRequest);
-    std::cout << "response: " << outputFormatedData << std::endl << std::endl;;
+    printf("response: %s\n\n", outputFormatedData.c_str());
 
-    std::cout << "request: " << toStructRequest << std::endl;
+    printf("request %s\n", toStructRequest);
     outputFormatedData = server.HandleRequest(toStructRequest);
-    std::cout << "response: " << outputFormatedData << std::endl << std::endl;;
+    printf("response: %s\n\n", outputFormatedData.c_str());
 
-    std::cout << "request: " << printNotificationRequest << std::endl;
+    printf("request %s\n", printNotificationRequest);
     outputFormatedData = server.HandleRequest(printNotificationRequest);
-    std::cout << "response size: " << outputFormatedData.size() << std::endl << std::endl;;
+    printf("response size: %d\n\n", (int)outputFormatedData.size());
 }
 
 int main() {
 	try {
 		RunServer();
 	} catch (const std::exception& ex) {
-		std::cerr << "Error: " << ex.what() << "\n";
+	    printf("Error %s\n", ex.what());
 		return 1;
 	}
 
