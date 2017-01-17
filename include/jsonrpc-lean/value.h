@@ -47,16 +47,13 @@ namespace jsonrpc {
             ARRAY,
             BINARY,
             BOOLEAN,
-            DATE_TIME,
             NUMBER,
-            INTEGER_32,
-            INTEGER_64,
-            NIL,
+            NUL,
             STRING,
-            STRUCT
+            OBJECT
         };
 
-        Value() : myType(Type::NIL) {}
+        Value() : myType(Type::NUL) {}
 
         Value(Array value) : myType(Type::ARRAY) {
             as.myArray = new Array(std::move(value));
@@ -64,22 +61,13 @@ namespace jsonrpc {
 
         Value(bool value) : myType(Type::BOOLEAN) { as.myBoolean = value; }
 
-        Value(const DateTime& value) : myType(Type::DATE_TIME) {
-            as.myDateTime = new DateTime(value);
-            as.myDateTime->tm_isdst = -1;
-        }
-
         Value(double value) : myType(Type::NUMBER) { as.myNumber = value; }
 
-        Value(int32_t value) : myType(Type::INTEGER_32) {
-            as.myInteger32 = value;
-            as.myInteger64 = value;
+        Value(int32_t value) : myType(Type::NUMBER) {
             as.myNumber = value;
         }
 
-        Value(int64_t value) : myType(Type::INTEGER_64) {
-            as.myInteger32 = static_cast<int32_t>(value);
-            as.myInteger64 = value;
+        Value(int64_t value) : myType(Type::NUMBER) {
             as.myNumber = static_cast<double>(value);
         }
 
@@ -89,7 +77,7 @@ namespace jsonrpc {
             as.myString = new String(std::move(value));
         }
 
-        Value(Struct value) : myType(Type::STRUCT) {
+        Value(Struct value) : myType(Type::OBJECT) {
             as.myStruct = new Struct(std::move(value));
         }
 
@@ -123,22 +111,17 @@ namespace jsonrpc {
             switch (myType) {
             case Type::BOOLEAN:
             case Type::NUMBER:
-            case Type::INTEGER_32:
-            case Type::INTEGER_64:
-            case Type::NIL:
+            case Type::NUL:
                 break;
 
             case Type::ARRAY:
                 as.myArray = new Array(other.AsArray());
                 break;
-            case Type::DATE_TIME:
-                as.myDateTime = new DateTime(other.AsDateTime());
-                break;
             case Type::BINARY:
             case Type::STRING:
                 as.myString = new String(other.AsString());
                 break;
-            case Type::STRUCT:
+            case Type::OBJECT:
                 as.myStruct = new Struct(other.AsStruct());
                 break;
             }
@@ -147,7 +130,7 @@ namespace jsonrpc {
         Value& operator=(const Value&) = delete;
 
         Value(Value&& other) noexcept : myType(other.myType), as(other.as) {
-            other.myType = Type::NIL;
+            other.myType = Type::NUL;
         }
 
         Value& operator=(Value&& other) noexcept {
@@ -157,7 +140,7 @@ namespace jsonrpc {
                 myType = other.myType;
                 as = other.as;
 
-                other.myType = Type::NIL;
+                other.myType = Type::NUL;
             }
             return *this;
         }
@@ -165,13 +148,10 @@ namespace jsonrpc {
         bool IsArray() const { return myType == Type::ARRAY; }
         bool IsBinary() const { return myType == Type::BINARY; }
         bool IsBoolean() const { return myType == Type::BOOLEAN; }
-        bool IsDateTime() const { return myType == Type::DATE_TIME; }
-        bool IsDouble() const { return myType == Type::NUMBER; }
-        bool IsInteger32() const { return myType == Type::INTEGER_32; }
-        bool IsInteger64() const { return myType == Type::INTEGER_64; }
-        bool IsNil() const { return myType == Type::NIL; }
+        bool IsNumber() const { return myType == Type::NUMBER; }
+        bool IsNil() const { return myType == Type::NUL; }
         bool IsString() const { return myType == Type::STRING; }
-        bool IsStruct() const { return myType == Type::STRUCT; }
+        bool IsStruct() const { return myType == Type::OBJECT; }
 
         const Array& AsArray() const {
             if (IsArray()) {
@@ -189,33 +169,9 @@ namespace jsonrpc {
             throw InvalidParametersFault();
         }
 
-        const DateTime& AsDateTime() const {
-            if (IsDateTime()) {
-                return *as.myDateTime;
-            }
-            throw InvalidParametersFault();
-        }
-
         const double& AsNumber() const {
-            if (IsDouble() || IsInteger32() || IsInteger64()) {
+            if (IsNumber()) {
                 return as.myNumber;
-            }
-            throw InvalidParametersFault();
-        }
-
-        const int32_t& AsInteger32() const {
-            if (IsInteger32()) {
-                return as.myInteger32;
-            } else if (IsInteger64()
-                && static_cast<int64_t>(as.myInteger32) == as.myInteger64) {
-                return as.myInteger32;
-            }
-            throw InvalidParametersFault();
-        }
-
-        const int64_t& AsInteger64() const {
-            if (IsInteger32() || IsInteger64()) {
-                return as.myInteger64;
             }
             throw InvalidParametersFault();
         }
@@ -255,25 +211,16 @@ namespace jsonrpc {
             case Type::BOOLEAN:
                 return Json(as.myBoolean);
                 break;
-            case Type::DATE_TIME:
-                return Json();
-                break;
             case Type::NUMBER:
                 return Json(as.myNumber);
                 break;
-            case Type::INTEGER_32:
-                return Json(as.myInteger32);
-                break;
-            case Type::INTEGER_64:
-                return Json((int)as.myInteger64);
-                break;
-            case Type::NIL:
+            case Type::NUL:
                 return Json();
                 break;
             case Type::STRING:
                 return Json(*as.myString);
                 break;
-            case Type::STRUCT:{
+            case Type::OBJECT:{
                 Json::object object;
                 for (auto& element : *as.myStruct) {
                     object[element.first] = element.second.toJson();
@@ -295,26 +242,20 @@ namespace jsonrpc {
             case Type::ARRAY:
                 delete as.myArray;
                 break;
-            case Type::DATE_TIME:
-                delete as.myDateTime;
-                break;
             case Type::BINARY:
             case Type::STRING:
                 delete as.myString;
                 break;
-            case Type::STRUCT:
+            case Type::OBJECT:
                 delete as.myStruct;
                 break;
-
             case Type::BOOLEAN:
             case Type::NUMBER:
-            case Type::INTEGER_32:
-            case Type::INTEGER_64:
-            case Type::NIL:
+            case Type::NUL:
                 break;
             }
 
-            myType = Type::NIL;
+            myType = Type::NUL;
         }
 
         Type myType;
@@ -340,20 +281,8 @@ namespace jsonrpc {
         return AsBoolean();
     }
 
-    template<> inline const Value::DateTime& Value::AsType<typename Value::DateTime>() const {
-        return AsDateTime();
-    }
-
     template<> inline const double& Value::AsType<double>() const {
         return AsNumber();
-    }
-
-    template<> inline const int32_t& Value::AsType<int32_t>() const {
-        return AsInteger32();
-    }
-
-    template<> inline const int64_t& Value::AsType<int64_t>() const {
-        return AsInteger64();
     }
 
     template<> inline const Value::String& Value::AsType<typename Value::String>() const {
@@ -397,25 +326,16 @@ namespace jsonrpc {
         case Value::Type::BOOLEAN:
             ret += value.AsBoolean();
             break;
-        case Value::Type::DATE_TIME:
-            ret += util::FormatIso8601DateTime(value.AsDateTime());
-            break;
         case Value::Type::NUMBER:
             ret += std::to_string(value.AsNumber());
             break;
-        case Value::Type::INTEGER_32:
-            ret += std::to_string(static_cast<int32_t>(value.AsNumber()));
-            break;
-        case Value::Type::INTEGER_64:
-            ret += std::to_string(static_cast<int64_t>(value.AsNumber()));
-            break;
-        case Value::Type::NIL:
+        case Value::Type::NUL:
             ret += "<nil>";
             break;
         case Value::Type::STRING:
             ret += '"' + value.AsString() + '"';
             break;
-        case Value::Type::STRUCT: {
+        case Value::Type::OBJECT: {
             ret += '{';
             auto& s = value.AsStruct();
             for (auto it = s.begin(); it != s.end(); ++it) {

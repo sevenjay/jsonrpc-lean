@@ -78,7 +78,7 @@ void RunServer() {
 
 	dispatcher.GetMethod("add")
 		.SetHelpText("Add two integers")
-		.AddSignature(jsonrpc::Value::Type::INTEGER_32, jsonrpc::Value::Type::INTEGER_32, jsonrpc::Value::Type::INTEGER_32);
+		.AddSignature(jsonrpc::Value::Type::NUMBER, jsonrpc::Value::Type::NUMBER, jsonrpc::Value::Type::NUMBER);
 
 	//bool run = true;
 	//dispatcher.AddMethod("exit", [&]() { run = false; }).SetHidden();
