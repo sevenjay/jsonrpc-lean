@@ -28,12 +28,12 @@ void LogArguments() {}
 
 template<typename Head>
 void LogArguments(Head&& head) {
-    printf("%s", jsonrpc::toString(head).c_str());
+    printf("%s", Json(head).dump().c_str());
 }
 
 template<typename Head, typename... Tail>
 void LogArguments(Head&& head, Tail&&... tail) {
-    std::string str = jsonrpc::toString(head) + ", ";
+    std::string str = Json(head).dump() + ", ";
     printf("%s", str.c_str());
     LogArguments(std::forward<Tail>(tail)...);
 }
@@ -43,7 +43,7 @@ void LogArguments(jsonrpc::Request::Parameters& params) {
         if (it != params.begin()) {
             printf(", ");
         }
-        printf("%s", it->toJson().dump().c_str());
+        printf("%s", it->dump().c_str());
     }
 }
 
@@ -82,6 +82,9 @@ void LogNotificationCall(jsonrpc::Client& client, std::string method, T&&... arg
 
 int main(int argc, char** argv) {
 
+    (void)argc;
+    (void)argv;
+
 	const char addResponse[] = "{\"jsonrpc\":\"2.0\",\"id\":0,\"result\":5}";
     const char concatResponse[] = "{\"jsonrpc\":\"2.0\",\"id\":1,\"result\":\"Hello, World!\"}";
     const char addArrayResponse[] = "{\"jsonrpc\":\"2.0\",\"id\":2,\"result\":2147484647}";
@@ -93,11 +96,11 @@ int main(int argc, char** argv) {
 
         LogCall(client, "add", 3, 2);
 		jsonrpc::Response parsedResponse = client.ParseResponse(addResponse);
-		printf("Parsed response: %f\n\n", parsedResponse.GetResult().AsNumber());
+		printf("Parsed response: %s\n\n", parsedResponse.GetResult().dump().c_str());
 		
         LogCall(client, "concat", "Hello, ", "World!");
 		parsedResponse = client.ParseResponse(concatResponse);
-        printf("Parsed response: %s\n\n", toString(parsedResponse.GetResult()).c_str());
+        printf("Parsed response: %s\n\n", parsedResponse.GetResult().dump().c_str());
 
         jsonrpc::Request::Parameters params;
         {
@@ -108,7 +111,7 @@ int main(int argc, char** argv) {
         }
         LogCall(client, "add_array", params);
 		parsedResponse = client.ParseResponse(addArrayResponse);
-		printf("Parsed response: %s\n\n", toString(parsedResponse.GetResult()).c_str());
+		printf("Parsed response: %s\n\n", parsedResponse.GetResult().dump().c_str());
 
         LogCall(client, "to_binary", "Hello World!"); // once the result here is parsed, the underlying AsString can be just an array of bytes, not necessarily printable characters
         LogCall(client, "from_binary", jsonrpc::Value("Hi!")); // "Hi!" can be an array of bytes, not necessarily printable characters
@@ -124,7 +127,7 @@ int main(int argc, char** argv) {
         }
         LogCall(client, "to_struct", params);
 		parsedResponse = client.ParseResponse(toStructResponse);
-		printf("Parsed response: %s\n\n", toString(parsedResponse.GetResult()).c_str());
+		printf("Parsed response: %s\n\n", parsedResponse.GetResult().dump().c_str());
 
         params.clear();
         {
@@ -165,7 +168,7 @@ int main(int argc, char** argv) {
     }
 
     if (CallErrors > 0) {
-        printf("Error: %d call(s) failed\n", CallErrors);
+        printf("Error: %d call(s) failed\n", (int)CallErrors);
         return 1;
     }
 

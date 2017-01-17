@@ -41,7 +41,7 @@ namespace jsonrpc {
         Json::object ResponseObject() const {
             Json::object ResponseJson;
             ResponseJson[json::JSONRPC_NAME] = json::JSONRPC_VERSION_2_0;
-            ResponseJson[json::ID_NAME] = myId.toJson();
+            ResponseJson[json::ID_NAME] = myId;
             return std::move(ResponseJson);
         }
 
@@ -53,8 +53,8 @@ namespace jsonrpc {
                 ErrorJson[json::ERROR_MESSAGE_NAME] = myFaultString;
                 ResponseJson[json::ERROR_NAME] = Json(ErrorJson);
             } else {
-                ResponseJson[json::ID_NAME] = myId.toJson();
-                ResponseJson[json::RESULT_NAME] = myResult.toJson();
+                ResponseJson[json::ID_NAME] = myId;
+                ResponseJson[json::RESULT_NAME] = myResult;
             }
             return Json(ResponseJson);
         }

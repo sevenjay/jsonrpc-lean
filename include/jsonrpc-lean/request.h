@@ -53,11 +53,11 @@ namespace jsonrpc {
         Json::object RequestJson;
         RequestJson[json::JSONRPC_NAME] = json::JSONRPC_VERSION_2_0;
         RequestJson[json::METHOD_NAME] = methodName;
-        RequestJson[json::ID_NAME] = id.toJson();
+        RequestJson[json::ID_NAME] = id;
 
         Json::array array;
         for (auto& param : params) {
-            array.push_back(param.toJson());
+            array.push_back(param);
         }
         RequestJson[json::PARAMS_NAME] = Json(array);
 
