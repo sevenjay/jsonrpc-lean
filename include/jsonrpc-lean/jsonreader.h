@@ -83,36 +83,27 @@ namespace jsonrpc {
             }
 
             return Request(method.string_value(), std::move(parameters),
-                GetId(id));
+                CheckId(id));
         }
 
         Response GetResponse() {
-
-
             if (!myDocument.is_object()) {
                 throw InvalidRequestFault();
             }
 
             ValidateJsonrpcVersion();
 
-
-
             auto id = myDocument[json::ID_NAME];
-            if (id == Json()) {
-                throw InvalidRequestFault();
-            }
-
+            id = CheckId(id);
 
             auto result = myDocument[json::RESULT_NAME];
             auto error = myDocument[json::ERROR_NAME];
-
-
 
             if (result != Json()) {
                 if (error != Json()) {
                     throw InvalidRequestFault();
                 }
-                return Response(result, GetId(id));
+                return Response(result, id);
             } else if (error != Json()) {
                 if (result != Json()) {
                     throw InvalidRequestFault();
@@ -129,8 +120,7 @@ namespace jsonrpc {
                     throw InvalidRequestFault();
                 }
 
-                return Response(code.number_value(), message.string_value(),
-                    GetId(id));
+                return Response(code.number_value(), message.string_value(),id);
             } else {
                 throw InvalidRequestFault();
             }
@@ -150,7 +140,7 @@ namespace jsonrpc {
             }
         }
 
-        Json GetId(const Json& id) const {
+        Json CheckId(const Json& id) const {
             if (id.is_string()) {
                 return id.string_value();
             } else if (id.is_number()) {
