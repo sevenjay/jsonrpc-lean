@@ -204,6 +204,9 @@ public:
     typedef std::initializer_list<std::pair<std::string, Type>> shape;
     bool has_shape(const shape & types, std::string & err) const;
 
+    template<typename T>
+    T AsType() const;
+
 private:
     std::shared_ptr<JsonValue> m_ptr;
 };

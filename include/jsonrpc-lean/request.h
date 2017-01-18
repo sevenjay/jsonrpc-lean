@@ -32,9 +32,9 @@ namespace jsonrpc {
 
     class Request {
     public:
-        typedef std::deque<Value> Parameters;
+        typedef std::deque<Json> Parameters;
 
-        Request(std::string methodName, Parameters parameters, Value id)
+        Request(std::string methodName, Parameters parameters, Json id)
             : myMethodName(std::move(methodName)),
             myParameters(std::move(parameters)),
             myId(std::move(id)) {
@@ -43,13 +43,13 @@ namespace jsonrpc {
 
         const std::string& GetMethodName() const { return myMethodName; }
         const Parameters& GetParameters() const { return myParameters; }
-        const Value& GetId() const { return myId; }
+        const Json& GetId() const { return myId; }
 
         std::string Write() const {
             return Write(myMethodName, myParameters, myId);
         }
 
-        static std::string Write(const std::string& methodName, const Parameters& params, const Value& id) {
+        static std::string Write(const std::string& methodName, const Parameters& params, const Json& id) {
         Json::object RequestJson;
         RequestJson[json::JSONRPC_NAME] = json::JSONRPC_VERSION_2_0;
         RequestJson[json::METHOD_NAME] = methodName;
@@ -67,7 +67,7 @@ namespace jsonrpc {
     private:
         std::string myMethodName;
         Parameters myParameters;
-        Value myId;
+        Json myId;
     };
 
 } // namespace jsonrpc

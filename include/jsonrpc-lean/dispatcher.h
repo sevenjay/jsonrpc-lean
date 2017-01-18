@@ -41,7 +41,7 @@ namespace jsonrpc {
 
     class MethodWrapper {
     public:
-        typedef std::function<Value(const Request::Parameters&)> Method;
+        typedef std::function<Json(const Request::Parameters&)> Method;
 
         explicit MethodWrapper(Method method) : myMethod(method) {}
 
@@ -59,15 +59,15 @@ namespace jsonrpc {
         const std::string& GetHelpText() const { return myHelpText; }
 
         template<typename... ParameterTypes>
-        MethodWrapper& AddSignature(Value::Type returnType, ParameterTypes... parameterTypes) {
-            mySignatures.emplace_back(std::initializer_list < Value::Type > {returnType, parameterTypes...});
+        MethodWrapper& AddSignature(Json::Type returnType, ParameterTypes... parameterTypes) {
+            mySignatures.emplace_back(std::initializer_list < Json::Type > {returnType, parameterTypes...});
             return *this;
         }
 
-        const std::vector<std::vector<Value::Type>>&
+        const std::vector<std::vector<Json::Type>>&
             GetSignatures() const { return mySignatures; }
 
-        Value operator()(const Request::Parameters& params) const {
+        Json operator()(const Request::Parameters& params) const {
             return myMethod(params);
         }
 
@@ -75,7 +75,7 @@ namespace jsonrpc {
         Method myMethod;
         bool myIsHidden = false;
         std::string myHelpText;
-        std::vector<std::vector<Value::Type>> mySignatures;
+        std::vector<std::vector<Json::Type>> mySignatures;
     };
 
     template<typename> struct ToStdFunction;
@@ -141,7 +141,7 @@ namespace jsonrpc {
 
         template<typename MethodType>
         MethodWrapper&
-        //typename std::enable_if<!std::is_convertible<MethodType, std::function<Value(const Request::Parameters&)>>::value && !std::is_member_pointer<MethodType>::value, MethodWrapper>::type&
+        //typename std::enable_if<!std::is_convertible<MethodType, std::function<Json(const Request::Parameters&)>>::value && !std::is_member_pointer<MethodType>::value, MethodWrapper>::type&
         AddMethod(std::string name, MethodType method) {
             //static_assert(!std::is_bind_expression<MethodType>::value,
             //    "Use AddMethod with 3 arguments to add member method");
@@ -150,12 +150,12 @@ namespace jsonrpc {
         }
 
         template<typename T>
-        MethodWrapper& AddMethod(std::string name, Value(T::*method)(const Request::Parameters&), T& instance) {
+        MethodWrapper& AddMethod(std::string name, Json(T::*method)(const Request::Parameters&), T& instance) {
             return AddMethod(std::move(name), std::bind(method, &instance, std::placeholders::_1));
         }
 
         template<typename T>
-        MethodWrapper& AddMethod(std::string name, Value(T::*method)(const Request::Parameters&) const, T& instance) {
+        MethodWrapper& AddMethod(std::string name, Json(T::*method)(const Request::Parameters&) const, T& instance) {
             return AddMethod(std::move(name), std::bind(method, &instance, std::placeholders::_1));
         }
 
@@ -179,26 +179,26 @@ namespace jsonrpc {
             myMethods.erase(name);
         }
 
-        Response Invoke(const std::string& name, const Request::Parameters& parameters, const Value& id) const {
+        Response Invoke(const std::string& name, const Request::Parameters& parameters, const Json& id) const {
             try {
                 auto method = myMethods.find(name);
                 if (method == myMethods.end()) {
                     throw MethodNotFoundFault("Method not found: " + name);
                 }
-                return{ method->second(parameters), Value(id) };
+                return{ method->second(parameters), Json(id) };
             }
             catch (const Fault& fault) {
-                return Response(fault.GetCode(), fault.GetString(), Value(id));
+                return Response(fault.GetCode(), fault.GetString(), Json(id));
             }
             catch (const std::out_of_range&) {
                 InvalidParametersFault fault;
-                return Response(fault.GetCode(), fault.GetString(), Value(id));
+                return Response(fault.GetCode(), fault.GetString(), Json(id));
             }
             catch (const std::exception& ex) {
-                return Response(0, ex.what(), Value(id));
+                return Response(0, ex.what(), Json(id));
             }
             catch (...) {
-                return Response(0, "unknown error", Value(id));
+                return Response(0, "unknown error", Json(id));
             }
         }
 
@@ -210,16 +210,16 @@ namespace jsonrpc {
 
         template<typename... ParameterTypes>
         MethodWrapper& AddMethodInternal(std::string name, std::function<void(ParameterTypes...)> method) {
-            std::function<Value(ParameterTypes...)> returnMethod = [method](ParameterTypes&&... params) -> Value {
+            std::function<Json(ParameterTypes...)> returnMethod = [method](ParameterTypes&&... params) -> Json {
                 method(std::forward<ParameterTypes>(params)...);
-                return Value();
+                return Json();
             };
             return AddMethodInternal(std::move(name), std::move(returnMethod), redi::index_sequence_for < ParameterTypes... > {});
         }
 
         template<typename ReturnType, typename... ParameterTypes, std::size_t... index>
         MethodWrapper& AddMethodInternal(std::string name, std::function<ReturnType(ParameterTypes...)> method, redi::index_sequence<index...>) {
-            MethodWrapper::Method realMethod = [method](const Request::Parameters& params) -> Value {
+            MethodWrapper::Method realMethod = [method](const Request::Parameters& params) -> Json {
                 if (params.size() != sizeof...(ParameterTypes)) {
                     throw InvalidParametersFault();
                 }

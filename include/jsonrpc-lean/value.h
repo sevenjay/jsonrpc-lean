@@ -34,80 +34,31 @@ struct tm;
 #include "../json11.hpp"
 using Json=json11::Json;
 
-namespace jsonrpc {
-
-    class Value : public Json{
-    public:
-
-        Value() :Json() {}
-        Value(bool value) :Json(value){}
-        Value(double value) :Json(value) {}
-        Value(int32_t value) :Json(value) {}
-        Value(int64_t value) :Json(static_cast<double>(value)) {}
-        Value(const char* value) : Value(std::string(value)) {}
-        Value(std::string value) :Json(value){}
-        Value(Json object): Json(object){ }
-
-        ~Value() {
-            Reset();
-        }
-
-        template<typename T>
-        Value(std::vector<T> value) : Json(value) {}
-
-        template<typename T>
-        Value(const std::map<std::string, T>& value) : Json(value) {}
-
-        template<typename T>
-        Value(const std::unordered_map<std::string, T>& value) : Json(value) {}
-
-        explicit Value(const Value& other) : Json(other){}
-
-        Value& operator=(const Value&) = delete;
-
-        Value(Value&& other) noexcept : Json(other) {}
-
-        Value& operator=(Value&& other) noexcept {
-            if (this != &other) {
-                Json::operator=(other);
-            }
-            return *this;
-        }
-
-        template<typename T>
-        T AsType() const;
-
-
-    private:
-        void Reset() {}
-    };
-
-    template<> inline  Json::array Value::AsType<typename Json::array>() const {
+namespace json11{
+    template<> inline  Json::array Json::AsType<typename Json::array>() const {
         return array_items();
     }
 
-    template<> inline  Json::object Value::AsType<typename Json::object>() const {
+    template<> inline  Json::object Json::AsType<typename Json::object>() const {
         return object_items();
     }
 
-    template<> inline  bool Value::AsType<bool>() const {
+    template<> inline  bool Json::AsType<bool>() const {
         return bool_value();
     }
 
-    template<> inline  double Value::AsType<double>() const {
+    template<> inline  double Json::AsType<double>() const {
         return number_value();
     }
 
-    template<> inline  std::string Value::AsType<typename std::string>() const {
+    template<> inline  std::string Json::AsType<typename std::string>() const {
         return string_value();
     }
 
-    template<> inline Json Value::AsType<Json>() const {
+    template<> inline Json Json::AsType<Json>() const {
         return Json(*this);
     }
+}
 
-
-
-} // namespace jsonrpc
 
 #endif // JSONRPC_LEAN_VALUE_H

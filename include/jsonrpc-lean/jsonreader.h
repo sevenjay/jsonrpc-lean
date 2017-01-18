@@ -136,8 +136,8 @@ namespace jsonrpc {
             }
         }
 
-        Value GetValue() {
-            return GetValue(myDocument);
+        Json GetJson() {
+            return myDocument;
         }
 
     private:
@@ -150,18 +150,18 @@ namespace jsonrpc {
             }
         }
 
-        Value GetValue(const Json& value) const {
+        Json GetValue(const Json& value) const {
             switch (value.type()) {
             case Json::NUL:
-                return Value();
+                return Json();
             case Json::BOOL:
-                return Value(value.bool_value());
+                return Json(value.bool_value());
             case Json::OBJECT: {
                 Json::object data;
                 for (auto& it: value.object_items()) {
                     data.emplace(it.first, GetValue(it.second));
                 }
-                return Value(std::move(data));
+                return Json(std::move(data));
             }
             case Json::ARRAY: {
                 Json::array array;
@@ -169,21 +169,21 @@ namespace jsonrpc {
                 for (auto& it: value.array_items()) {
                     array.emplace_back(GetValue(it));
                 }
-                return Value(std::move(array));
+                return Json(std::move(array));
             }
             case Json::STRING: {
                 std::string str = value.string_value();
-                return Value(std::move(str));
+                return Json(std::move(str));
             }
             case Json::NUMBER:
-                return Value(value.number_value());
+                return Json(value.number_value());
                 break;
             }
 
             throw InternalErrorFault();
         }
 
-        Value GetId(const Json& id) const {
+        Json GetId(const Json& id) const {
             if (id.is_string()) {
                 return id.string_value();
             } else if (id.is_number()) {

@@ -27,13 +27,13 @@ namespace jsonrpc {
 
     class Response {
     public:
-        Response(Value value, Value id) : myResult(std::move(value)),
+        Response(Json value, Json id) : myResult(std::move(value)),
             myIsFault(false),
             myFaultCode(0),
             myId(std::move(id)) {
         }
 
-        Response(int32_t faultCode, std::string faultString, Value id) : myIsFault(true),
+        Response(int32_t faultCode, std::string faultString, Json id) : myIsFault(true),
             myFaultCode(faultCode),
             myFaultString(std::move(faultString)),
             myId(std::move(id)) {
@@ -59,7 +59,7 @@ namespace jsonrpc {
             return Json(ResponseJson);
         }
 
-        Value& GetResult() { return myResult; }
+        Json& GetResult() { return myResult; }
         bool IsFault() const { return myIsFault; }
 
         void ThrowIfFault() const {
@@ -97,14 +97,14 @@ namespace jsonrpc {
             throw Fault(myFaultString, myFaultCode);
         }
 
-        const Value& GetId() const { return myId; }
+        const Json& GetId() const { return myId; }
 
     private:
-        Value myResult;
+        Json myResult;
         bool myIsFault;
         int32_t myFaultCode;
         std::string myFaultString;
-        Value myId;
+        Json myId;
     };
 
 } // namespace jsonrpc
