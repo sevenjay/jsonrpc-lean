@@ -72,7 +72,7 @@ namespace jsonrpc {
                 }
 
                 for (auto& param: params.array_items()) {
-                    parameters.push_back(GetValue(param));
+                    parameters.push_back(param);
                 }
             }
 
@@ -112,7 +112,7 @@ namespace jsonrpc {
                 if (error != Json()) {
                     throw InvalidRequestFault();
                 }
-                return Response(GetValue(result), GetId(id));
+                return Response(result, GetId(id));
             } else if (error != Json()) {
                 if (result != Json()) {
                     throw InvalidRequestFault();
@@ -148,39 +148,6 @@ namespace jsonrpc {
                 || jsonrpc.string_value() != json::JSONRPC_VERSION_2_0) {
                 throw InvalidRequestFault();
             }
-        }
-
-        Json GetValue(const Json& value) const {
-            switch (value.type()) {
-            case Json::NUL:
-                return Json();
-            case Json::BOOL:
-                return Json(value.bool_value());
-            case Json::OBJECT: {
-                Json::object data;
-                for (auto& it: value.object_items()) {
-                    data.emplace(it.first, GetValue(it.second));
-                }
-                return Json(std::move(data));
-            }
-            case Json::ARRAY: {
-                Json::array array;
-                array.reserve(value.array_items().size());
-                for (auto& it: value.array_items()) {
-                    array.emplace_back(GetValue(it));
-                }
-                return Json(std::move(array));
-            }
-            case Json::STRING: {
-                std::string str = value.string_value();
-                return Json(std::move(str));
-            }
-            case Json::NUMBER:
-                return Json(value.number_value());
-                break;
-            }
-
-            throw InternalErrorFault();
         }
 
         Json GetId(const Json& id) const {
