@@ -53,7 +53,7 @@ namespace jsonrpc {
                 Request request = reader.GetRequest();
 
                 auto response = myDispatcher.Invoke(request.GetMethodName(), request.GetParameters(), request.GetId());
-                if (!response.GetId().is_bool() || response.GetId().AsBoolean() != false) {
+                if (!response.GetId().is_bool() || response.GetId().bool_value() != false) {
                     // if Id is false, this is a notification and we don't have to write a response
                     responseJson = response.Write();
                 }

@@ -62,34 +62,39 @@ namespace jsonrpc {
         Value() : myType(Type::NUL) {}
 
         Value(Array value) :Json(fromArray(value)), myType(Type::ARRAY) {
-            as.myArray = new Array(std::move(value));
+            //as.myArray = new Array(std::move(value));
         }
 
         Value(bool value) :Json(value), myType(Type::BOOL) {
-            as.myBoolean = value;
+            //as.myBoolean = value;
         }
 
         Value(double value) :Json(value), myType(Type::NUMBER) {
-            as.myNumber = value;
+            //as.myNumber = value;
         }
 
         Value(int32_t value) :Json(value), myType(Type::NUMBER) {
-            as.myNumber = value;
+            //as.myNumber = value;
         }
 
         Value(int64_t value) :Json(static_cast<double>(value)), myType(Type::NUMBER) {
-            as.myNumber = static_cast<double>(value);
+            //as.myNumber = static_cast<double>(value);
         }
 
         Value(const char* value) : Value(String(value)) {}
 
         Value(String value) :Json(value), myType(Type::STRING) {
-            as.myString = new String(std::move(value));
+            //as.myString = new String(std::move(value));
         }
 
         Value(Struct value) :Json(fromStruct(value)), myType(Type::OBJECT) {
-            as.myStruct = new Struct(std::move(value));
+            //as.myStruct = new Struct(std::move(value));
         }
+
+        Value(Json object): Json(object), myType(object.type()){
+
+        }
+
 
         ~Value() {
             Reset();
@@ -101,7 +106,7 @@ namespace jsonrpc {
             for (auto& v : value) {
                 a.emplace_back(std::move(v));
             }
-            this = Value(a);
+            *this = Value(Json(a));
         }
 
         template<typename T>
@@ -110,7 +115,7 @@ namespace jsonrpc {
             for (auto& v : value) {
                 a.emplace(v.first, v.second);
             }
-            this = Value(a);
+            *this = Value(Json(a));
         }
 
         template<typename T>
@@ -119,10 +124,10 @@ namespace jsonrpc {
             for (auto& v : value) {
                 a.emplace(v.first, v.second);
             }
-            this = Value(a);
+            *this = Value(Json(a));
         }
 
-        explicit Value(const Value& other) : Json(other), myType(other.myType), as(other.as) {
+        explicit Value(const Value& other) : Json(other), myType(other.myType) {
             switch (myType) {
             case Type::BOOL:
             case Type::NUMBER:
@@ -130,20 +135,20 @@ namespace jsonrpc {
                 break;
 
             case Type::ARRAY:
-                as.myArray = new Array(other.AsArray());
+                //as.myArray = new Array(other.AsArray());
                 break;
             case Type::STRING:
-                as.myString = new String(other.AsString());
+                //as.myString = new String(other.AsString());
                 break;
             case Type::OBJECT:
-                as.myStruct = new Struct(other.AsStruct());
+                //as.myStruct = new Struct(other.AsStruct());
                 break;
             }
         }
 
         Value& operator=(const Value&) = delete;
 
-        Value(Value&& other) noexcept : Json(other), myType(other.myType), as(other.as) {
+        Value(Value&& other) noexcept : Json(other), myType(other.myType) {
             other.myType = Type::NUL;
         }
 
@@ -152,13 +157,14 @@ namespace jsonrpc {
                 Reset();
                 Json::operator=(other);
                 myType = other.myType;
-                as = other.as;
+                //as = other.as;
 
                 other.myType = Type::NUL;
             }
             return *this;
         }
 
+        /*
         const Array& AsArray() const {
             if (is_array()) {
                 return *as.myArray;
@@ -195,24 +201,25 @@ namespace jsonrpc {
             }
             throw InvalidParametersFault();
         }
+        */
 
         template<typename T>
         T AsType() const;
 
-        inline const Value& operator[](Array::size_type i) const;
-        inline const Value& operator[](const Struct::key_type& key) const;
+        //inline const Value& operator[](Array::size_type i) const;
+        //inline const Value& operator[](const Struct::key_type& key) const;
 
     private:
         void Reset() {
             switch (myType) {
             case Type::ARRAY:
-                delete as.myArray;
+                //delete as.myArray;
                 break;
             case Type::STRING:
-                delete as.myString;
+                //delete as.myString;
                 break;
             case Type::OBJECT:
-                delete as.myStruct;
+                //delete as.myStruct;
                 break;
             case Type::BOOL:
             case Type::NUMBER:
@@ -225,6 +232,7 @@ namespace jsonrpc {
         }
 
         Type myType;
+        /*
         union {
             Array* myArray;
             bool myBoolean;
@@ -237,39 +245,62 @@ namespace jsonrpc {
                 int64_t myInteger64;
             };
         } as;
+        */
     };
 
+    template<> inline  Json::array Value::AsType<typename Json::array>() const {
+        return array_items();
+    }
+
+    template<> inline  Json::object Value::AsType<typename Json::object>() const {
+        return object_items();
+    }
+
+    /*
     template<> inline  Value::Array Value::AsType<typename Value::Array>() const {
         return AsArray();
     }
+    */
 
     template<> inline  bool Value::AsType<bool>() const {
-        return AsBoolean();
+        return bool_value();
     }
 
     template<> inline  double Value::AsType<double>() const {
-        return AsNumber();
+        return number_value();
     }
 
-    template<> inline  Value::String Value::AsType<typename Value::String>() const {
-        return AsString();
+    template<> inline  std::string Value::AsType<typename std::string>() const {
+        return string_value();
     }
 
+    /*
     template<> inline Value::Struct Value::AsType<typename Value::Struct>() const {
         return AsStruct();
     }
+    */
 
+    template<> inline Json Value::AsType<Json>() const {
+        return Json(*this);
+    }
+
+    /*
     template<> inline Value Value::AsType<Value>() const {
         return Value(*this);
     }
+    */
 
+    /*
     inline const Value& Value::operator[](Array::size_type i) const {
-        return AsArray().at(i);
+        return Json::operator[](i);
+        //return AsArray().at(i);
     };
 
-    inline const Value& Value::operator[](const Struct::key_type& key) const {
-        return AsStruct().at(key);
+    inline const Value& Value::operator[](const Json::object::key_type& key) const {
+        return Json::operator[](key);
+        //return AsStruct().at(key);
     }
+    */
 
 
 } // namespace jsonrpc

@@ -104,7 +104,7 @@ int main(int argc, char** argv) {
 
         jsonrpc::Request::Parameters params;
         {
-            jsonrpc::Value::Array a;
+            Json::array a;
             a.emplace_back(1000);
             a.emplace_back(std::numeric_limits<int32_t>::max());
             params.push_back(std::move(a));
@@ -114,12 +114,12 @@ int main(int argc, char** argv) {
 		printf("Parsed response: %s\n\n", parsedResponse.GetResult().dump().c_str());
 
         LogCall(client, "to_binary", "Hello World!"); // once the result here is parsed, the underlying AsString can be just an array of bytes, not necessarily printable characters
-        LogCall(client, "from_binary", jsonrpc::Value("Hi!")); // "Hi!" can be an array of bytes, not necessarily printable characters
+        LogCall(client, "from_binary", Json("Hi!")); // "Hi!" can be an array of bytes, not necessarily printable characters
 		LogNotificationCall(client, "print_notification", "This is just a notification, no response expected!");
 
         params.clear();
         {
-            jsonrpc::Value::Array a;
+            Json::array a;
             a.emplace_back(12);
             a.emplace_back("foobar");
             a.emplace_back(a);
@@ -131,12 +131,12 @@ int main(int argc, char** argv) {
 
         params.clear();
         {
-            jsonrpc::Value::Array calls;
+            Json::array calls;
             {
-                jsonrpc::Value::Struct call;
-                call["method"] = jsonrpc::Value("add");
+                Json::object call;
+                call["method"] = Json("add");
                 {
-                    jsonrpc::Value::Array params;
+                    Json::array params;
                     params.emplace_back(23);
                     params.emplace_back(19);
                     call["params"] = std::move(params);
@@ -144,15 +144,15 @@ int main(int argc, char** argv) {
                 calls.emplace_back(std::move(call));
             }
             {
-                jsonrpc::Value::Struct call;
-                call["method"] = jsonrpc::Value("does.NotExist");
+                Json::object call;
+                call["method"] = Json("does.NotExist");
                 calls.emplace_back(std::move(call));
             }
             {
-                jsonrpc::Value::Struct call;
-                call["method"] = jsonrpc::Value("concat");
+                Json::object call;
+                call["method"] = Json("concat");
                 {
-                    jsonrpc::Value::Array params;
+                    Json::array params;
                     params.emplace_back("Hello ");
                     params.emplace_back("multicall!");
                     call["params"] = std::move(params);

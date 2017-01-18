@@ -30,9 +30,9 @@ public:
 		return a + b;
 	}
 
-	double AddArray(const jsonrpc::Value::Array& a) {
+	double AddArray(const Json::array& a) {
 		return std::accumulate(a.begin(), a.end(), double(0),
-			[](const double& a, const jsonrpc::Value& b) { return a + b.AsNumber(); });
+			[](const double& a, const Json& b) { return a + b.number_value(); });
 	};
 };
 
@@ -40,14 +40,14 @@ std::string Concat(const std::string& a, const std::string& b) {
 	return a + b;
 }
 
-std::string FromBinary(const jsonrpc::Value& b) {
-	return{ b.AsBinary().begin(), b.AsBinary().end() };
+std::string FromBinary(const Json& b) {
+	return{ b.string_value().begin(), b.string_value().end() };
 }
 
-jsonrpc::Value::Struct ToStruct(const jsonrpc::Value::Array& a) {
-	jsonrpc::Value::Struct s;
+Json::object ToStruct(const Json::array& a) {
+	Json::object s;
 	for (size_t i = 0; i < a.size(); ++i) {
-		s[std::to_string(i)] = jsonrpc::Value(a[i]);
+		s[std::to_string(i)] = Json(a[i]);
 	}
 	return s;
 }
@@ -73,7 +73,7 @@ void RunServer() {
 
 	dispatcher.GetMethod("add")
 		.SetHelpText("Add two integers")
-		.AddSignature(jsonrpc::Value::Type::NUMBER, jsonrpc::Value::Type::NUMBER, jsonrpc::Value::Type::NUMBER);
+		.AddSignature(Json::Type::NUMBER, Json::Type::NUMBER, Json::Type::NUMBER);
 
 	//bool run = true;
 	//dispatcher.AddMethod("exit", [&]() { run = false; }).SetHidden();
