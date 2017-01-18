@@ -157,14 +157,14 @@ namespace jsonrpc {
             case Json::BOOL:
                 return Value(value.bool_value());
             case Json::OBJECT: {
-                Value::Struct data;
+                Json::object data;
                 for (auto& it: value.object_items()) {
                     data.emplace(it.first, GetValue(it.second));
                 }
                 return Value(std::move(data));
             }
             case Json::ARRAY: {
-                Value::Array array;
+                Json::array array;
                 array.reserve(value.array_items().size());
                 for (auto& it: value.array_items()) {
                     array.emplace_back(GetValue(it));
