@@ -38,19 +38,14 @@ namespace jsonrpc {
 
     class Value : public Json{
     public:
-        typedef tm DateTime;
-        typedef std::string String;
-
 
         Value() :Json() {}
-        //Value(Array value) :Json(fromArray(value)) {}
         Value(bool value) :Json(value){}
         Value(double value) :Json(value) {}
         Value(int32_t value) :Json(value) {}
         Value(int64_t value) :Json(static_cast<double>(value)) {}
-        Value(const char* value) : Value(String(value)) {}
-        Value(String value) :Json(value){}
-        //Value(Struct value) :Json(fromStruct(value)) {}
+        Value(const char* value) : Value(std::string(value)) {}
+        Value(std::string value) :Json(value){}
         Value(Json object): Json(object){ }
 
         ~Value() {

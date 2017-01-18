@@ -58,7 +58,7 @@ namespace jsonrpc {
                     responseJson = response.Write();
                 }
             } catch (const Fault& ex) {
-                responseJson = Response(ex.GetCode(), ex.GetString(), Value()).Write();
+                responseJson = Response(ex.GetCode(), ex.GetString(), Json()).Write();
             }
 
             return std::move(responseJson.dump());
