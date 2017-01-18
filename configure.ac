@@ -4,11 +4,6 @@ AC_PREREQ([2.59])
 
 AM_INIT_AUTOMAKE([1.10 -Wall no-define foreign subdir-objects])
 
-dnl Following parameters are used to register this component for future re-use
-dnl JIRA if no component for this package has been created just provide the ID
-dnl otherwise ID/component/XXXXXX for direct linkage.
-                  
-
 PACKAGE_KEYWORDS="jsonrpc-lean"
 PACKAGE_TYPE="library"
 PACKAGE_LANGUAGES="C++"
@@ -19,14 +14,11 @@ PACKAGE_DESCRIPTION_LONG="Long description for the lib one liner still"
 AC_DEFINE_UNQUOTED(PACKAGE_DESCRIPTION, "${PACKAGE_DESCRIPTION}", [package description])
 AC_DEFINE_UNQUOTED(PACKAGE_DESCRIPTION_LONG, "${PACKAGE_DESCRIPTION_LONG}", [long package description])
 
-AC_SUBST([PACKAGE_KEYWORDS],[$PACKAGE_KEYWORDS])
-AC_SUBST([PACKAGE_TYPE],[$PACKAGE_TYPE])
-AC_SUBST([PACKAGE_LANGUAGES],[$PACKAGE_LANGUAGES])
-AC_SUBST([PACKAGE_DESCRIPTION], [${PACKAGE_DESCRIPTION}], [package description])
-AC_SUBST([PACKAGE_DESCRIPTION_LONG], [${PACKAGE_DESCRIPTION_LONG}], [long package description])
-
-AC_SUBST([PACKAGE_REQUIRES],[$PACKAGE_REQUIRES],[])
-
+AC_SUBST([PACKAGE_KEYWORDS])
+AC_SUBST([PACKAGE_TYPE])
+AC_SUBST([PACKAGE_LANGUAGES])
+AC_SUBST([PACKAGE_DESCRIPTION])
+AC_SUBST([PACKAGE_DESCRIPTION_LONG])
 
 # Remove default "-g -O2" flags if user hasn't supplied custom flags
 : ${CFLAGS=""}
@@ -46,8 +38,12 @@ AS_IF([test "x$with_debug" = "xyes"], [
  
 AC_ARG_WITH([unittest], AS_HELP_STRING([--with-unittest], [Build with unittesting (implies coverage profiling/debugging symbols]))
 AS_IF([test "x$with_unittest" = "xyes"], [
+  #PKG_CHECK_MODULES([GTEST], [gtest])
   CFLAGS="-fprofile-arcs -ftest-coverage -g -O0 ${CFLAGS}"
   LIBS="-lgcov ${LIBS}"
+  
+  AC_SUBST([GTEST_CFLAGS], ${CFLAGS})
+  AC_SUBST([GTEST_LIBS], ${LIBS})
 ])
 AM_CONDITIONAL([HAVE_UNITTEST], [test "x$with_unittest" = "xyes"])
 

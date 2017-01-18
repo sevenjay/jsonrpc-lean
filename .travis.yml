@@ -1,0 +1,52 @@
+# Use new trusty images, should yield newer compilers and packages
+sudo: required
+dist: precise
+language: generic
+
+matrix:
+  include:
+    - os: linux
+      env: COMPILER_NAME=gcc CXX=g++-5 CC=gcc-5
+      addons:
+        apt:
+          packages:
+            - g++-5
+          sources: &sources
+            - llvm-toolchain-precise-3.8
+            - ubuntu-toolchain-r-test
+
+before_install:
+ - sudo apt-get -qq update
+ - sudo apt-get install -y libgtest-dev
+ - sudo wget https://github.com/google/googletest/archive/release-1.8.0.tar.gz
+ - sudo tar xf release-1.8.0.tar.gz
+ - cd googletest-release-1.8.0
+ - sudo cmake -DBUILD_SHARED_LIBS=ON .
+ - sudo make
+ - cd googletest
+ - sudo cp -a include/gtest /usr/include
+ - cd ../googlemock
+ - sudo cp -a include/gmock /usr/include
+ - sudo cp -a libgmock_main.so libgmock.so /usr/lib/
+ - cd gtest
+ - sudo cp -a libgtest_main.so libgtest.so /usr/lib/
+ - cd "${TRAVIS_BUILD_DIR}"
+
+before_script:
+ - pwd
+ - chmod +x autogen.sh
+
+script:
+ - ./autogen.sh --with-unittest
+ - make check
+
+branches:
+  only:
+    - master
+
+notifications:
+  recipients:
+    - jsiloto@cpqd.com.br
+  email:
+    false
+

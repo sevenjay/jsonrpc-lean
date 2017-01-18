@@ -34,7 +34,5 @@ nobase_@PACKAGE_NAME@_include_HEADERS += jsonrpc-lean/value.h
 
 AUTOMAKE_OPTIONS = subdir-objects
  
- 
-include $(CPQD_BT)/mk/cpqd_drc_rules.mk
 
 

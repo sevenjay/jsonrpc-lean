@@ -5,16 +5,16 @@
  *      Author: jsiloto
  */
 
-/**
- * @file test_adc.cc
- * @copyright BrPhotonics
- * @copyright CPqD
- */
+
+
 
 #include <gtest/gtest.h>
+#include <gmock/gmock.h>
 #include <array>
 #include <cstring>
 #include <functional>
+#include <numeric>
+#include "jsonrpc-lean/server.h"
 
 using testing::_;
 using testing::Args;
@@ -58,11 +58,11 @@ class JsonRpcTest : public ::testing::Test {
  protected:
     jsonrpc::Server server;
 
-    const char addRequest[] = "{\"jsonrpc\":\"2.0\",\"method\":\"add\",\"id\":0,\"params\":[3,2]}";
-    const char concatRequest[] = "{\"jsonrpc\":\"2.0\",\"method\":\"concat\",\"id\":1,\"params\":[\"Hello, \",\"World!\"]}";
-    const char addArrayRequest[] = "{\"jsonrpc\":\"2.0\",\"method\":\"add_array\",\"id\":2,\"params\":[[1000,2147483647]]}";
-    const char toStructRequest[] = "{\"jsonrpc\":\"2.0\",\"method\":\"to_struct\",\"id\":4,\"params\":[[12,\"foobar\",[12,\"foobar\"]]]}";
-    const char printNotificationRequest[] = "{\"jsonrpc\":\"2.0\",\"method\":\"print_notification\",\"params\":[\"This is just a notification, no response expected!\"]}";
+    std::string addRequest = "{\"jsonrpc\":\"2.0\",\"method\":\"add\",\"id\":0,\"params\":[3,2]}";
+    std::string concatRequest = "{\"jsonrpc\":\"2.0\",\"method\":\"concat\",\"id\":1,\"params\":[\"Hello, \",\"World!\"]}";
+    std::string addArrayRequest = "{\"jsonrpc\":\"2.0\",\"method\":\"add_array\",\"id\":2,\"params\":[[1000,2147483647]]}";
+    std::string toStructRequest = "{\"jsonrpc\":\"2.0\",\"method\":\"to_struct\",\"id\":4,\"params\":[[12,\"foobar\",[12,\"foobar\"]]]}";
+    std::string printNotificationRequest = "{\"jsonrpc\":\"2.0\",\"method\":\"print_notification\",\"params\":[\"This is just a notification, no response expected!\"]}";
 
 };
 
@@ -86,24 +86,24 @@ TEST_F(JsonRpcTest, Invoke) {
             Json::Type::NUMBER, Json::Type::NUMBER, Json::Type::NUMBER);
 
     std::string outputFormatedData;
-    printf("request %s\n", addRequest);
-    outputFormatedData = server.HandleRequest(addRequest);
+    printf("request %s\n", addRequest.c_str());
+    outputFormatedData = server.HandleRequest(addRequest.c_str());
     printf("response: %s\n\n", outputFormatedData.c_str());
 
-    printf("request %s\n", concatRequest);
-    outputFormatedData = server.HandleRequest(concatRequest);
+    printf("request %s\n", concatRequest.c_str());
+    outputFormatedData = server.HandleRequest(concatRequest.c_str());
     printf("response: %s\n\n", outputFormatedData.c_str());
 
-    printf("request %s\n", addArrayRequest);
-    outputFormatedData = server.HandleRequest(addArrayRequest);
+    printf("request %s\n", addArrayRequest.c_str());
+    outputFormatedData = server.HandleRequest(addArrayRequest.c_str());
     printf("response: %s\n\n", outputFormatedData.c_str());
 
-    printf("request %s\n", toStructRequest);
-    outputFormatedData = server.HandleRequest(toStructRequest);
+    printf("request %s\n", toStructRequest.c_str());
+    outputFormatedData = server.HandleRequest(toStructRequest.c_str());
     printf("response: %s\n\n", outputFormatedData.c_str());
 
-    printf("request %s\n", printNotificationRequest);
-    outputFormatedData = server.HandleRequest(printNotificationRequest);
+    printf("request %s\n", printNotificationRequest.c_str());
+    outputFormatedData = server.HandleRequest(printNotificationRequest.c_str());
     printf("response size: %d\n\n", (int)outputFormatedData.size());
 }
 

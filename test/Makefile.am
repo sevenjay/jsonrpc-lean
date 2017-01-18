@@ -14,13 +14,13 @@ check_PROGRAMS = jsonrpc-test
 jsonrpc_test_CPPFLAGS = @GTEST_CFLAGS@ -I$(srcdir)/../src
 jsonrpc_test_LDADD = ../src/libjsonrpc-lean.a @GTEST_LIBS@ -lgmock_main -lreadline
 jsonrpc_test_SOURCES =
-jsonrpc_test_SOURCES += test_client.cc
-jsonrpc_test_SOURCES += test_server.cc
+jsonrpc_test_SOURCES += test_client.cpp
+jsonrpc_test_SOURCES += test_server.cpp
  
  
 TESTS = jsonrpc-test
  
-check-local::
-    gcovr -r $(top_srcdir) -e '.*builddeps/' -e ^test -e 'src/lib/'
+#check-local::
+#    gcovr -r $(top_srcdir)
  
 endif

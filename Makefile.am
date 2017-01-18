@@ -2,9 +2,9 @@ AUTOMAKE_OPTIONS = subdir-objects
 ACLOCAL_AMFLAGS = ${ACLOCAL_FLAGS}
 
 pkgconfigdir = $(datadir)/pkgconfig
-pkgconfig_DATA = @PACKAGE_NAME@-@PACKAGE_VERSION@.pc
+pkgconfig_DATA = @PACKAGE_NAME@.pc
 
-SUBDIRS = src
+SUBDIRS = src test
 dist_noinst_SCRIPTS = autogen.sh
 
 if HAVE_DOXYGEN
@@ -14,5 +14,3 @@ CLEANFILES = doxyfile.stamp
 #all-local: doxyfile.stamp
 endif
 
-
-include $(CPQD_BT)/mk/cpqd_drc_rules.mk
