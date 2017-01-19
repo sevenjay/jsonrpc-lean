@@ -1,4 +1,33 @@
-include/rapidjson/
+.autotools
+.cproject
+.project
+Doxyfile
+Makefile
+Makefile.in
+aclocal.m4
+ar-lib
+autom4te.cache/
+compile
+config.guess
+config.h
+config.h.in
+config.status
+config.sub
+configure
+depcomp
+install-sh
+jsonrpc-lean.pc
+missing
+src/.deps/
+src/Makefile
+src/Makefile.in
+stamp-h1
+test-driver
+test/.deps/
+test/Makefile
+test/Makefile.in
+test/jsonrpc-test
+test/jsonrpc-test.trs
 
 
 
@@ -63,6 +92,11 @@ xcuserdata
 *.out
 *.app
 
+# Coverage
+*.gcno
+*.gcov
+*.gcda
+*.gcna
 
 ### VisualStudio ###
 ## Ignore Visual Studio temporary files, build results, and

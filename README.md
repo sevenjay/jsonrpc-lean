@@ -1,4 +1,5 @@
 [![Build Status](https://travis-ci.org/jsiloto/jsonrpc-lean.svg?branch=master)](https://travis-ci.org/jsiloto/jsonrpc-lean)
+[![Coverage Status](https://coveralls.io/repos/github/jsiloto/jsonrpc-lean/badge.svg)](https://coveralls.io/github/jsiloto/jsonrpc-lean)
 
 # jsonrpc-lean
 
