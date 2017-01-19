@@ -56,11 +56,6 @@ class MethodsMock : public Methods {
   MOCK_METHOD1(ToObject, Json::object(const Json::array& a));
 };
 
-
-void PrintNotification(const std::string& a) {
-    printf("notification %s\n", a.c_str());
-}
-
 MethodsMock GlobalMock;
 
 std::string StaticConcat(const std::string& a, const std::string& b){
@@ -70,9 +65,14 @@ Json::object StaticToObject (const Json::array& a){
     return GlobalMock.ToObject(a);
 }
 
-void StaticError(){
+void Error(){
     throw jsonrpc::ServerErrorFault(jsonrpc::Fault::SERVER_ERROR_CODE_MIN, "Server Error");
 }
+
+void PrintNotification(const std::string& a) {
+    printf("notification %s\n", a.c_str());
+}
+
 
 jsonrpc::Server server;
 jsonrpc::Dispatcher& dispatcher = server.GetDispatcher();
@@ -87,7 +87,8 @@ void initialize(){
         // if it is just a regular function (non-member or static), you can you the 2 parameter AddMethod
         dispatcher.AddMethod("concat", &StaticConcat);
         dispatcher.AddMethod("to_object", &StaticToObject);
-        dispatcher.AddMethod("error", &StaticError);
+        dispatcher.AddMethod("error", &Error);
+        dispatcher.AddMethod("print_notification", &PrintNotification);
     }
     init = true;
 }
@@ -119,14 +120,20 @@ protected:
 TEST_F(JsonRpcTest, InvokeMethod) {
     expectedResponse = "{\"id\": 0, \"jsonrpc\": \"2.0\", \"result\": 5}";
     EXPECT_CALL(GlobalMock, Add(3, 2)).WillOnce(Return(5));
-    response = server.HandleRequest(addRequest.c_str());
+    response = server.HandleRequest(addRequest);
     printf("request %s\n", addRequest.c_str());
     printf("response: %s\n\n", response.c_str());
 
     EXPECT_CALL(GlobalMock, AddArray(Json::array {1111, 2222})).WillOnce(Return(3333));
-    response = server.HandleRequest(addArrayRequest.c_str());
+    response = server.HandleRequest(addArrayRequest);
     printf("request %s\n", addArrayRequest.c_str());
     printf("response: %s\n\n", response.c_str());
+
+
+    response = server.HandleRequest(printNotificationRequest);
+    printf("request %s\n", printNotificationRequest.c_str());
+    printf("response: %s\n\n", response.c_str());
+
 }
 
 /// @test
@@ -134,7 +141,7 @@ TEST_F(JsonRpcTest, InvokeStatic) {
 
     // Concat
     EXPECT_CALL(GlobalMock, Concat("Hello, ", "World!")).WillOnce(Return("Hello, World!"));
-    response = server.HandleRequest(concatRequest.c_str());
+    response = server.HandleRequest(concatRequest);
     EXPECT_EQ(methods.Concat("Hello, ", "World!"), "Hello, World!");
     expectedResponse = "{\"id\": 1, \"jsonrpc\": \"2.0\", \"result\": \"Hello, World!\"}";
     EXPECT_EQ(response, expectedResponse);
@@ -153,7 +160,7 @@ TEST_F(JsonRpcTest, InvokeStatic) {
     EXPECT_TRUE(err.empty());
 
     EXPECT_CALL(GlobalMock, ToObject(array)).WillOnce(Return(object));
-    response = server.HandleRequest(toObjectRequest.c_str());
+    response = server.HandleRequest(toObjectRequest);
     EXPECT_EQ(methods.ToObject(array), object);
     expectedResponse = "{\"id\": 4, \"jsonrpc\": \"2.0\", \"result\": " + r + "}";
     EXPECT_EQ(response, expectedResponse);
@@ -202,7 +209,7 @@ TEST_P(JsonRpcErrorTest, BadInvoke) {
     auto response = std::get<1>(GetParam());
     auto code =  std::get<2>(GetParam());
 
-    auto response_str = server.HandleRequest(request.c_str());
+    auto response_str = server.HandleRequest(request);
     printf("response: %s\n", response_str.c_str());
     Json error = Json::parse(response_str, err)["error"];
     EXPECT_TRUE(err.empty());
