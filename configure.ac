@@ -40,7 +40,7 @@ AC_ARG_WITH([unittest], AS_HELP_STRING([--with-unittest], [Build with unittestin
 AS_IF([test "x$with_unittest" = "xyes"], [
   #PKG_CHECK_MODULES([GTEST], [gtest])
   CFLAGS="-fprofile-arcs -ftest-coverage -g -O0 ${CFLAGS}"
-  LIBS="-lgcov ${LIBS}"
+  LIBS="-pthread -lgcov ${LIBS}"
   
   AC_SUBST([GTEST_CFLAGS], ${CFLAGS})
   AC_SUBST([GTEST_LIBS], ${LIBS})
