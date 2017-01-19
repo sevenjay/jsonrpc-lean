@@ -145,8 +145,6 @@ namespace jsonrpc {
                 return id.string_value();
             } else if (id.is_number()) {
                 return id.number_value();
-            } else if (id.is_null()) {
-                return{};
             }
 
             throw InvalidRequestFault();
