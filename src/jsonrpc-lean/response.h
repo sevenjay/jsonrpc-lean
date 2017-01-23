@@ -21,7 +21,6 @@
 #define JSONRPC_LEAN_RESPONSE_H
 
 #include "json.h"
-#include "value.h"
 
 namespace jsonrpc {
 

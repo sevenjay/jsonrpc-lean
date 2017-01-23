@@ -20,6 +20,6 @@ jsonrpc_test_SOURCES += test_server.cpp
 TESTS = jsonrpc-test
  
 check-local::
-	gcovr -r $(top_srcdir)
+	gcovr -r $(top_srcdir) -e ^test -e 'json11/'
  
 endif

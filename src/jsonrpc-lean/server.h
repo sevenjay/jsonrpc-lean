@@ -21,7 +21,6 @@
 #define JSONRPC_LEAN_SERVER_H
 
 #include "request.h"
-#include "value.h"
 #include "fault.h"
 #include "response.h"
 #include "dispatcher.h"

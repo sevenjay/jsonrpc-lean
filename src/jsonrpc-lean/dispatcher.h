@@ -23,7 +23,6 @@
 #include "fault.h"
 #include "request.h"
 #include "response.h"
-#include "value.h"
 
 //#if __cplusplus <= 201103L
 #include "integer_seq.h"

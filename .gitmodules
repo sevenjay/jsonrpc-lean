@@ -1,0 +1,3 @@
+[submodule "json11"]
+  path = json11
+  url = https://github.com/jsiloto/json11.git

@@ -20,6 +20,9 @@
 #ifndef JSONRPC_LEAN_JSON_H
 #define JSONRPC_LEAN_JSON_H
 
+#include "../../json11/json11.hpp"
+using Json=json11::Json;
+
 namespace jsonrpc {
     namespace json {
 

@@ -16,10 +16,10 @@ noinst_LIBRARIES = lib@PACKAGE_NAME@.a
 
 
 lib@PACKAGE_NAME@_a_SOURCES =
-lib@PACKAGE_NAME@_a_SOURCES += json11.cpp
+lib@PACKAGE_NAME@_a_SOURCES += ../json11/json11.cpp
  
 nobase_@PACKAGE_NAME@_include_HEADERS =
-nobase_@PACKAGE_NAME@_include_HEADERS += json11.hpp
+nobase_@PACKAGE_NAME@_include_HEADERS += ../json11/json11.hpp
 nobase_@PACKAGE_NAME@_include_HEADERS += jsonrpc-lean/client.h
 nobase_@PACKAGE_NAME@_include_HEADERS += jsonrpc-lean/dispatcher.h
 nobase_@PACKAGE_NAME@_include_HEADERS += jsonrpc-lean/fault.h
@@ -30,7 +30,6 @@ nobase_@PACKAGE_NAME@_include_HEADERS += jsonrpc-lean/request.h
 nobase_@PACKAGE_NAME@_include_HEADERS += jsonrpc-lean/response.h
 nobase_@PACKAGE_NAME@_include_HEADERS += jsonrpc-lean/server.h
 nobase_@PACKAGE_NAME@_include_HEADERS += jsonrpc-lean/util.h
-nobase_@PACKAGE_NAME@_include_HEADERS += jsonrpc-lean/value.h
 
 AUTOMAKE_OPTIONS = subdir-objects
  

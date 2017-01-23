@@ -21,7 +21,6 @@
 #define JSONRPC_LEAN_REQUEST_H
 
 #include "json.h"
-#include "value.h"
 
 #include <deque>
 #include <string>

@@ -25,15 +25,11 @@
 #include "request.h"
 #include "response.h"
 #include "util.h"
-#include "value.h"
 #include <utility>
 #include <string>
 
 #define RAPIDJSON_NO_SIZETYPEDEFINE
 namespace rapidjson { typedef ::std::size_t SizeType; }
-
-#include "../json11.hpp"
-using Json=json11::Json;
 
 namespace jsonrpc {
 
