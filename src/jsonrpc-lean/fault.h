@@ -34,6 +34,7 @@ namespace jsonrpc {
             RESERVED_CODE_MAX = -32000,
             SERVER_ERROR_CODE_MIN = -32099,
             SERVER_ERROR_CODE_MAX = -32000,
+            SERVER_ERROR_CODE_DEFAULT = -32001,
             PARSE_ERROR = -32700,
             INVALID_REQUEST = -32600,
             METHOD_NOT_FOUND = -32601,

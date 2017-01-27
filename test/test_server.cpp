@@ -117,6 +117,14 @@ protected:
 
 
 /// @test
+TEST_F(JsonRpcTest, AddMethodTwice) {
+    jsonrpc::Server server2;
+    server2.GetDispatcher().AddMethod("concat", &StaticConcat);
+    EXPECT_THROW(server2.GetDispatcher().AddMethod("concat", &StaticConcat), std::invalid_argument);
+}
+
+
+/// @test
 TEST_F(JsonRpcTest, InvokeMethod) {
     expectedResponse = "{\"id\": 0, \"jsonrpc\": \"2.0\", \"result\": 5}";
     EXPECT_CALL(GlobalMock, Add(3, 2)).WillOnce(Return(5));

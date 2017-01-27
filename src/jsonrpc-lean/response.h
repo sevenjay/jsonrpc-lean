@@ -70,6 +70,7 @@ namespace jsonrpc {
             case Fault::RESERVED_CODE_MIN:
             case Fault::RESERVED_CODE_MAX:
             case Fault::SERVER_ERROR_CODE_MIN:
+            case Fault::SERVER_ERROR_CODE_DEFAULT:
                 break;
             case Fault::PARSE_ERROR:
                 throw ParseErrorFault(myFaultString);

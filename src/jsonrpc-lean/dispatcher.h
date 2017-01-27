@@ -193,8 +193,13 @@ namespace jsonrpc {
                 InvalidParametersFault fault;
                 return Response(fault.GetCode(), fault.GetString(), Json(id));
             }
+            catch (const std::invalid_argument& ex){
+                InvalidParametersFault fault;
+                return Response(fault.GetCode(), fault.GetString(), Json(id));
+            }
             catch (const std::exception& ex) {
-                return Response(0, ex.what(), Json(id));
+                ServerErrorFault fault(Fault::SERVER_ERROR_CODE_DEFAULT, ex.what());
+                return Response(fault.GetCode(), fault.GetString(), Json(id));
             }
             catch (...) {
                 return Response(0, "unknown error", Json(id));
