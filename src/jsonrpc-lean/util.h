@@ -23,9 +23,7 @@
 #include <stdint.h>
 #include <string.h>
 #include <cassert>
-#include <ctime>
 
-struct tm;
 
 namespace {
 
@@ -73,12 +71,6 @@ namespace {
 
 namespace jsonrpc {
     namespace util {
-
-        inline std::string FormatIso8601DateTime(const tm& dt) {
-            char str[128];
-            return std::string(str, strftime(str, sizeof(str), DATE_TIME_FORMAT, &dt));
-        }
-
         inline std::string Base64Encode(const std::string& data); // forward declaration
 
         inline std::string Base64Encode(const char* data, size_t size) {

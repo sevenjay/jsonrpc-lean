@@ -102,7 +102,7 @@ namespace jsonrpc {
     private:
         Json myResult;
         bool myIsFault;
-        int32_t myFaultCode;
+        int myFaultCode;
         std::string myFaultString;
         Json myId;
     };
