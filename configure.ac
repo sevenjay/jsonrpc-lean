@@ -36,6 +36,32 @@ AS_IF([test "x$with_debug" = "xyes"], [
 ])
  
  
+SOFT_FPU_CFLAGS="-mfloat-abi=soft"
+HARD_FPU_CFLAGS="-mfloat-abi=hard -mfpu=fpv4-sp-d16"
+AC_ARG_ENABLE([fpu],
+    AS_HELP_STRING([--enable-fpu], [Build with floating-point support in hardware (required for processors with an integrated FPU) @<:@default=yes@:>@]),
+    [AS_CASE(${enableval},
+        [yes], [FPU_CFLAGS=${HARD_FPU_CFLAGS}],
+        [no], [FPU_CFLAGS=${SOFT_FPU_CFLAGS}],
+        [soft], [FPU_CFLAGS=${SOFT_FPU_CFLAGS}],
+        [FPU_CFLAGS="-mfloat-abi=hard -mfpu=${enableval}"])
+    ],
+    [FPU_CFLAGS=${HARD_FPU_CFLAGS}])
+
+AC_ARG_ENABLE([semihosting], AS_HELP_STRING([--enable-semihosting], [Build with semihosting support]))
+
+AS_IF([test "x${host_cpu}" = "xarm" -a "x${host_os}" = "xeabi"], [
+  CPPFLAGS="-D_AEABI_LC_CTYPE=C ${CPPFLAGS}"
+  CFLAGS="-mcpu=cortex-m4 ${FPU_CFLAGS} -mthumb ${CFLAGS}"
+  CXXFLAGS="-fno-rtti ${CXXFLAGS}"
+  LDFLAGS="-Wl,--gc-sections,-static ${LDFLAGS}"
+  AS_IF([test "x$enable_semihosting" = "xyes"], [
+    LDFLAGS="--specs=rdimon.specs ${LDFLAGS}"
+  ], [
+    LDFLAGS="--specs=nosys.specs ${LDFLAGS}"
+  ])
+])
+ 
 AC_ARG_WITH([unittest], AS_HELP_STRING([--with-unittest], [Build with unittesting (implies coverage profiling/debugging symbols]))
 AS_IF([test "x$with_unittest" = "xyes"], [
   #PKG_CHECK_MODULES([GTEST], [gtest])
