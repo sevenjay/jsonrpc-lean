@@ -178,8 +178,28 @@ namespace jsonrpc {
             myMethods.erase(name);
         }
 
-        Response Invoke(const std::string& name, const Request::Parameters& parameters, const Json& id) const {
+        template<typename T>
+        void AddAlias(const std::string& method, const std::string alias, T parameter0){
+          AliasWrapper a {method, Json(parameter0)};
+          myAliases.emplace(alias, a);
+        }
+
+
+        Response Invoke(std::string name, Request::Parameters parameters, const Json& id) const {
             try {
+                // find alias if existing
+                auto alias = myAliases.find(name);
+                if(alias != myAliases.end()){
+                    // resolve alias
+                    name = alias->second.name;
+                    parameters.push_front(alias->second.parameter0);
+                    // concatenate parameters
+//                    while(!pars.empty()){
+//                        parameters.push_front(pars.back());
+//                        pars.pop_back();
+//                    }
+                }
+
                 auto method = myMethods.find(name);
                 if (method == myMethods.end()) {
                     throw MethodNotFoundFault("Method not found: " + name);
@@ -232,7 +252,15 @@ namespace jsonrpc {
             return AddMethod(std::move(name), std::move(realMethod));
         }
 
+        struct AliasWrapper{
+          std::string name;
+          Json parameter0;
+          // Todo(jsiloto): Add generalize for more parameters
+        };
+
+
         std::map<std::string, MethodWrapper> myMethods;
+        std::map<std::string, AliasWrapper> myAliases;
     };
 
 } // namespace jsonrpc

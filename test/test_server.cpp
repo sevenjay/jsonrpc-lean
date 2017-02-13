@@ -82,10 +82,15 @@ void initialize(){
     if(!init){
         // if it is a member method, you must use this 3 parameter version, passing an instance of an object that implements it
         dispatcher.AddMethod("add", &MethodsMock::Add, GlobalMock);
+        dispatcher.AddAlias("add", "add_alias", 3);
+
         dispatcher.AddMethod("add_array", &MethodsMock::AddArray, GlobalMock);
 
         // if it is just a regular function (non-member or static), you can you the 2 parameter AddMethod
         dispatcher.AddMethod("concat", &StaticConcat);
+        dispatcher.AddAlias("concat", "concat_alias", "Hello ");
+
+
         dispatcher.AddMethod("to_object", &StaticToObject);
         dispatcher.AddMethod("error", &Error);
         dispatcher.AddMethod("print_notification", &PrintNotification);
@@ -107,12 +112,16 @@ protected:
 
     std::string response;
     std::string expectedResponse;
-
     std::string addRequest = "{\"jsonrpc\":\"2.0\",\"method\":\"add\",\"id\":0,\"params\":[3,2]}";
     std::string concatRequest = "{\"jsonrpc\":\"2.0\",\"method\":\"concat\",\"id\":1,\"params\":[\"Hello, \",\"World!\"]}";
     std::string addArrayRequest = "{\"jsonrpc\":\"2.0\",\"method\":\"add_array\",\"id\":\"2\",\"params\":[[1111,2222]]}";
     std::string toObjectRequest = "{\"jsonrpc\":\"2.0\",\"method\":\"to_object\",\"id\":4,\"params\":[[12,\"foobar\",[12,\"foobar\"]]]}";
     std::string printNotificationRequest = "{\"jsonrpc\":\"2.0\",\"method\":\"print_notification\",\"params\":[\"This is just a notification, no response expected!\"]}";
+
+
+    std::string addAliasRequest = "{\"jsonrpc\":\"2.0\",\"method\":\"add_alias\",\"id\":0,\"params\":[2]}";
+    std::string concatAliasRequest = "{\"jsonrpc\":\"2.0\",\"method\":\"concat_alias\",\"id\":1,\"params\":[\"World!\"]}";
+
 };
 
 
@@ -141,7 +150,6 @@ TEST_F(JsonRpcTest, InvokeMethod) {
     response = server.HandleRequest(printNotificationRequest);
     printf("request %s\n", printNotificationRequest.c_str());
     printf("response: %s\n\n", response.c_str());
-
 }
 
 /// @test
@@ -175,6 +183,21 @@ TEST_F(JsonRpcTest, InvokeStatic) {
     printf("request %s\n", toObjectRequest.c_str());
     printf("response: %s\n\n", response.c_str());
 }
+
+/// @test
+TEST_F(JsonRpcTest, InvokeAlias) {
+    expectedResponse = "{\"id\": 0, \"jsonrpc\": \"2.0\", \"result\": 5}";
+    EXPECT_CALL(GlobalMock, Add(3, 2)).WillOnce(Return(5));
+    response = server.HandleRequest(addAliasRequest);
+
+    // Concat
+    expectedResponse = "{\"id\": 1, \"jsonrpc\": \"2.0\", \"result\": \"Hello, World!\"}";
+    EXPECT_CALL(GlobalMock, Concat("Hello, ", "World!")).WillOnce(Return("Hello, World!"));
+    response = server.HandleRequest(concatRequest);
+    EXPECT_EQ(methods.Concat("Hello, ", "World!"), "Hello, World!");
+    EXPECT_EQ(response, expectedResponse);
+}
+
 
 
 class JsonRpcErrorTest: public ::testing::TestWithParam<
