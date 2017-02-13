@@ -88,7 +88,8 @@ void initialize(){
 
         // if it is just a regular function (non-member or static), you can you the 2 parameter AddMethod
         dispatcher.AddMethod("concat", &StaticConcat);
-        dispatcher.AddAlias("concat", "concat_alias", "Hello ");
+        dispatcher.AddAlias("concat", "concat_alias", "Hello, ");
+        dispatcher.AddAlias("concat", "concat_alias2", "Hello, ", "World!");
 
 
         dispatcher.AddMethod("to_object", &StaticToObject);
@@ -121,6 +122,7 @@ protected:
 
     std::string addAliasRequest = "{\"jsonrpc\":\"2.0\",\"method\":\"add_alias\",\"id\":0,\"params\":[2]}";
     std::string concatAliasRequest = "{\"jsonrpc\":\"2.0\",\"method\":\"concat_alias\",\"id\":1,\"params\":[\"World!\"]}";
+    std::string concatAliasRequest2 = "{\"jsonrpc\":\"2.0\",\"method\":\"concat_alias2\",\"id\":1,\"params\":[]}";
 
 };
 
@@ -193,7 +195,14 @@ TEST_F(JsonRpcTest, InvokeAlias) {
     // Concat
     expectedResponse = "{\"id\": 1, \"jsonrpc\": \"2.0\", \"result\": \"Hello, World!\"}";
     EXPECT_CALL(GlobalMock, Concat("Hello, ", "World!")).WillOnce(Return("Hello, World!"));
-    response = server.HandleRequest(concatRequest);
+    response = server.HandleRequest(concatAliasRequest);
+    EXPECT_EQ(methods.Concat("Hello, ", "World!"), "Hello, World!");
+    EXPECT_EQ(response, expectedResponse);
+
+    // Concat
+    expectedResponse = "{\"id\": 1, \"jsonrpc\": \"2.0\", \"result\": \"Hello, World!\"}";
+    EXPECT_CALL(GlobalMock, Concat("Hello, ", "World!")).WillOnce(Return("Hello, World!"));
+    response = server.HandleRequest(concatAliasRequest2);
     EXPECT_EQ(methods.Concat("Hello, ", "World!"), "Hello, World!");
     EXPECT_EQ(response, expectedResponse);
 }
