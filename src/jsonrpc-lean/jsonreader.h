@@ -29,128 +29,126 @@
 #include <string>
 
 #define RAPIDJSON_NO_SIZETYPEDEFINE
-namespace rapidjson { typedef ::std::size_t SizeType; }
+namespace rapidjson {
+typedef ::std::size_t SizeType;
+}
 
 namespace jsonrpc {
 
-    class JsonReader {
-    public:
-        JsonReader(const std::string& data) {
+class JsonReader {
+ public:
+  JsonReader(const std::string& data) {
 
-            std::string err;
-            myDocument = Json::parse(data, err);
+    std::string err;
+    myDocument = Json::parse(data, err);
 
-            // TODO(jsiloto): Add exception
-            if (!err.empty()) {
-                throw ParseErrorFault(
-                    "Parse error: " + err);
-            }
-        }
+    if (!err.empty()) {
+      throw ParseErrorFault("Parse error: " + err);
+    }
+  }
 
-        // Reader
-        Request GetRequest() {
-            if (!myDocument.is_object()) {
-                throw InvalidRequestFault();
-            }
+  // Reader
+  Request GetRequest() {
+    if (!myDocument.is_object()) {
+      throw InvalidRequestFault();
+    }
 
-            ValidateJsonrpcVersion();
+    ValidateJsonrpcVersion();
 
-            auto method = myDocument[json::METHOD_NAME];
-            if (method == Json() || !method.is_string()) {
-                throw InvalidRequestFault();
-            }
+    auto method = myDocument[json::METHOD_NAME];
+    if (method == Json() || !method.is_string()) {
+      throw InvalidRequestFault();
+    }
 
-            Request::Parameters parameters;
-            auto params = myDocument[json::PARAMS_NAME];
-            if (params != Json()) {
-                if (!params.is_array()) {
-                    throw InvalidRequestFault();
-                }
+    Request::Parameters parameters;
+    auto params = myDocument[json::PARAMS_NAME];
+    if (params != Json()) {
+      if (!params.is_array()) {
+        throw InvalidRequestFault();
+      }
 
-                for (auto& param: params.array_items()) {
-                    parameters.push_back(param);
-                }
-            }
+      for (auto& param : params.array_items()) {
+        parameters.push_back(param);
+      }
+    }
 
-            auto id = myDocument[json::ID_NAME];
-            if (id == Json()) {
-                // Notification
-                return Request(method.string_value(), std::move(parameters), false);
-            }
+    auto id = myDocument[json::ID_NAME];
+    if (id == Json()) {
+      // Notification
+      return Request(method.string_value(), std::move(parameters), false);
+    }
 
-            return Request(method.string_value(), std::move(parameters),
-                CheckId(id));
-        }
+    return Request(method.string_value(), std::move(parameters), CheckId(id));
+  }
 
-        Response GetResponse() {
-            if (!myDocument.is_object()) {
-                throw InvalidRequestFault();
-            }
+  Response GetResponse() {
+    if (!myDocument.is_object()) {
+      throw InvalidRequestFault();
+    }
 
-            ValidateJsonrpcVersion();
+    ValidateJsonrpcVersion();
 
-            auto id = myDocument[json::ID_NAME];
-            id = CheckId(id);
+    auto id = myDocument[json::ID_NAME];
+    id = CheckId(id);
 
-            auto result = myDocument[json::RESULT_NAME];
-            auto error = myDocument[json::ERROR_NAME];
+    auto result = myDocument[json::RESULT_NAME];
+    auto error = myDocument[json::ERROR_NAME];
 
-            if (result != Json()) {
-                if (error != Json()) {
-                    throw InvalidRequestFault();
-                }
-                return Response(result, id);
-            } else if (error != Json()) {
-                if (result != Json()) {
-                    throw InvalidRequestFault();
-                }
-                if (!error.is_object()) {
-                    throw InvalidRequestFault();
-                }
-                auto code = error[json::ERROR_CODE_NAME];
-                if (code == Json() || !code.is_number()) {
-                    throw InvalidRequestFault();
-                }
-                auto message = error[json::ERROR_MESSAGE_NAME];
-                if (message == Json() || !message.is_string()) {
-                    throw InvalidRequestFault();
-                }
+    if (result != Json()) {
+      if (error != Json()) {
+        throw InvalidRequestFault();
+      }
+      return Response(result, id);
+    } else if (error != Json()) {
+      if (result != Json()) {
+        throw InvalidRequestFault();
+      }
+      if (!error.is_object()) {
+        throw InvalidRequestFault();
+      }
+      auto code = error[json::ERROR_CODE_NAME];
+      if (code == Json() || !code.is_number()) {
+        throw InvalidRequestFault();
+      }
+      auto message = error[json::ERROR_MESSAGE_NAME];
+      if (message == Json() || !message.is_string()) {
+        throw InvalidRequestFault();
+      }
 
-                return Response(code.number_value(), message.string_value(),id);
-            } else {
-                throw InvalidRequestFault();
-            }
-        }
+      return Response(code.number_value(), message.string_value(), id);
+    } else {
+      throw InvalidRequestFault();
+    }
+  }
 
-        Json GetJson() {
-            return myDocument;
-        }
+  Json GetJson() {
+    return myDocument;
+  }
 
-    private:
-        void ValidateJsonrpcVersion() const {
-            auto jsonrpc = myDocument[json::JSONRPC_NAME];
-            if (jsonrpc == Json()
-                || !jsonrpc.is_string()
-                || jsonrpc.string_value() != json::JSONRPC_VERSION_2_0) {
-                throw InvalidRequestFault();
-            }
-        }
+ private:
+  void ValidateJsonrpcVersion() const {
+    auto jsonrpc = myDocument[json::JSONRPC_NAME];
+    if (jsonrpc == Json() || !jsonrpc.is_string()
+        || jsonrpc.string_value() != json::JSONRPC_VERSION_2_0) {
+      throw InvalidRequestFault();
+    }
+  }
 
-        Json CheckId(const Json& id) const {
-            if (id.is_string()) {
-                return id.string_value();
-            } else if (id.is_number()) {
-                return id.number_value();
-            }
+  Json CheckId(const Json& id) const {
+    if (id.is_string()) {
+      return id.string_value();
+    } else if (id.is_number()) {
+      return id.number_value();
+    }
 
-            throw InvalidRequestFault();
-        }
+    throw InvalidRequestFault();
+  }
 
-        std::string myData;
-        //rapidjson::Document myDocument;
-        json11::Json myDocument;
-    };
+  std::string myData;
+  //rapidjson::Document myDocument;
+  json11::Json myDocument;
+};
 
-} // namespace jsonrpc
+}  // namespace jsonrpc
 
 #endif // JSONRPC_LEAN_JSONREADER_H
