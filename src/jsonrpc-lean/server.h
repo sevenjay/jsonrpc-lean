@@ -33,7 +33,8 @@ namespace jsonrpc {
 
     class Server {
     public:
-        Server() {}
+        Server() : myDispatcherPtr(new Dispatcher()) {}
+        Server(std::unique_ptr<Dispatcher> d) : myDispatcherPtr(std::move(d)){}
         ~Server() {}
 
         Server(const Server&) = delete;
@@ -41,7 +42,7 @@ namespace jsonrpc {
         Server(Server&&) = delete;
         Server& operator=(Server&&) = delete;
 
-        Dispatcher& GetDispatcher() { return myDispatcher; }
+        Dispatcher& GetDispatcher() { return *myDispatcherPtr; }
 
         // If aRequestData is a Notification (the client doesn't expect a response), the returned FormattedData will have an empty ->GetData() buffer and ->GetSize() will be 0
         std::string HandleRequest(const std::string& aRequestData) {
@@ -51,7 +52,7 @@ namespace jsonrpc {
                 auto reader = JsonReader(aRequestData);
                 Request request = reader.GetRequest();
 
-                auto response = myDispatcher.Invoke(request.GetMethodName(), request.GetParameters(), request.GetId());
+                auto response = myDispatcherPtr->Invoke(request.GetMethodName(), request.GetParameters(), request.GetId());
                 if (!response.GetId().is_bool() || response.GetId().bool_value() != false) {
                     // if Id is false, this is a notification and we don't have to write a response
                     responseJson = response.Write();
@@ -63,7 +64,7 @@ namespace jsonrpc {
             return std::move(responseJson.dump());
         }
     private:
-        Dispatcher myDispatcher;
+        std::unique_ptr<Dispatcher> myDispatcherPtr;
     };
 
 } // namespace jsonrpc

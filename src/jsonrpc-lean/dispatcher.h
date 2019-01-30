@@ -192,7 +192,7 @@ namespace jsonrpc {
 
 
 
-        Response Invoke(std::string name, Request::Parameters parameters, const Json& id) const {
+        virtual Response Invoke(std::string name, Request::Parameters parameters, const Json& id) const {
             try {
                 // find alias if existing
                 auto alias = myAliases.find(name);
@@ -276,6 +276,7 @@ namespace jsonrpc {
         }
 
 
+    protected:
         std::map<std::string, MethodWrapper> myMethods;
         std::map<std::string, AliasWrapper> myAliases;
     };
