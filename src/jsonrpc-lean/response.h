@@ -37,6 +37,13 @@ namespace jsonrpc {
             myFaultString(std::move(faultString)),
             myId(std::move(id)) {
         }
+        Response(int32_t faultCode, std::string faultString, std::string faultData, Json id) : myIsFault(true),
+            myFaultCode(faultCode),
+            myFaultString(std::move(faultString)),
+            myFaultData(std::move(faultData)),
+            myId(std::move(id)) {
+        }
+
         Json::object ResponseObject() const {
             Json::object ResponseJson;
             ResponseJson[json::JSONRPC_NAME] = json::JSONRPC_VERSION_2_0;
@@ -50,6 +57,7 @@ namespace jsonrpc {
                 Json::object ErrorJson;
                 ErrorJson[json::ERROR_CODE_NAME] = myFaultCode;
                 ErrorJson[json::ERROR_MESSAGE_NAME] = myFaultString;
+                if(!myFaultData.empty()) ErrorJson[json::ERROR_DATA_NAME] = myFaultData;
                 ResponseJson[json::ERROR_NAME] = Json(ErrorJson);
             } else {
                 ResponseJson[json::ID_NAME] = myId;
@@ -104,6 +112,7 @@ namespace jsonrpc {
         bool myIsFault;
         int myFaultCode;
         std::string myFaultString;
+        std::string myFaultData;
         Json myId;
     };
 

@@ -114,6 +114,10 @@ class JsonReader {
       if (message == Json() || !message.is_string()) {
         throw InvalidRequestFault();
       }
+      auto data = error[json::ERROR_DATA_NAME];
+      if (data == Json() || !data.is_string()) {
+        throw InvalidRequestFault();
+      }
 
       return Response(code.number_value(), message.string_value(), id);
     } else {
