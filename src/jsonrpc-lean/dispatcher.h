@@ -239,8 +239,10 @@ namespace jsonrpc {
         template<typename ReturnType, typename... ParameterTypes, std::size_t... index>
         MethodWrapper& AddMethodInternal(std::string name, std::function<ReturnType(ParameterTypes...)> method, redi::index_sequence<index...>) {
             MethodWrapper::Method realMethod = [method](const Request::Parameters& params) -> Json {
-                if (params.size() != sizeof...(ParameterTypes)) {
+                if (params.size() < sizeof...(ParameterTypes)) { //ex: client 3 parameters -> rpc server 4 parameters
                     throw InvalidParametersFault();
+                } else if(sizeof...(ParameterTypes) < params.size()) { //ex: client 4 parameters -> rpc server 3 parameters
+                    ///@todo warning in info
                 }
                 return method(params[index].AsType<typename std::decay<ParameterTypes>::type>()...);
             };
