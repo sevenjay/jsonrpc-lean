@@ -57,11 +57,25 @@ namespace jsonrpc {
             return myMethod(params);
         }
 
+        MethodWrapper& SetNumberOfPara(int n) {
+            myNumberOfPara = n;
+            return *this;
+        }
+        int GetNumberOfPara() const { return myNumberOfPara; }
+
+        MethodWrapper& SetLeastOfPara(int n) {
+            myLeastOfPara = n;
+            return *this;
+        }
+        int GetLeastOfPara() const { return myLeastOfPara; }
+
     private:
         Method myMethod;
-        bool myIsHidden = false;
+        bool   myIsHidden = false;
         std::string myHelpText;
         std::vector<std::vector<Json::Type>> mySignatures;
+        int    myNumberOfPara {0};
+        int    myLeastOfPara  {99};
     };
 
     struct AliasWrapper{
@@ -199,6 +213,13 @@ namespace jsonrpc {
                 if (method == myMethods.end()) {
                     throw MethodNotFoundFault("Method not found: " + name);
                 }
+                //for backwards-compatible to client wit less parameters
+                if(method->second.GetLeastOfPara() <= parameters.size() && parameters.size() < method->second.GetNumberOfPara()) {
+                    for(int i = parameters.size();i < method->second.GetNumberOfPara(); i++){
+                        parameters.push_back(Json());
+                    }
+                }
+
                 return{ method->second(parameters), Json(id) };
             }
             catch (const Fault& fault) {
@@ -239,8 +260,8 @@ namespace jsonrpc {
         template<typename ReturnType, typename... ParameterTypes, std::size_t... index>
         MethodWrapper& AddMethodInternal(std::string name, std::function<ReturnType(ParameterTypes...)> method, redi::index_sequence<index...>) {
             MethodWrapper::Method realMethod = [method](const Request::Parameters& params) -> Json {
-                if (params.size() < sizeof...(ParameterTypes)) { //ex: client 3 parameters -> rpc server 4 parameters
-                    throw InvalidParametersFault();
+                if (params.size() < sizeof...(ParameterTypes)) { //ex: client 3 parameters -> rpc server 4 parameters, without SetLeastOfPara(3).SetNumberOfPara(4) will throw
+                    throw InvalidParametersFault("Invalid parameters, less than required least number");
                 } else if(sizeof...(ParameterTypes) < params.size()) { //ex: client 4 parameters -> rpc server 3 parameters
                     ///@todo warning in info
                 }

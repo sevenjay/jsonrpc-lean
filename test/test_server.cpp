@@ -95,6 +95,10 @@ void initialize(){
         dispatcher.AddMethod("to_object", &StaticToObject);
         dispatcher.AddMethod("error", &Error);
         dispatcher.AddMethod("print_notification", &PrintNotification);
+
+        dispatcher.AddMethod("test", [](int a, float b, bool c, string d){
+                                  printf("a %d, b %f, c %d, d %s", a, b, c, d.c_str());
+                             }).SetLeastOfPara(1).SetNumberOfPara(4);
     }
     init = true;
 }
